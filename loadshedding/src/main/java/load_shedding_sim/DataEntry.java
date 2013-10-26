@@ -16,8 +16,8 @@ public class DataEntry {
 		this.key 				= key;
 		this.otherDataFields	= otherDataFields;
 		this.numberOfTotalResults = numberOfTotalResults;
-		
-		numberOfPastResults = 1;
+		Random randomGenerator = new Random();
+		numberOfPastResults = randomGenerator.nextInt(3);
 		numberOfLargestPastResults = 0;
 	}
 }

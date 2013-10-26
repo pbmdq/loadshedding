@@ -3,6 +3,7 @@ package load_shedding_sim;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
+
 import org.apache.commons.lang3.time.DateUtils;
 
 
@@ -13,29 +14,33 @@ import org.apache.commons.lang3.time.DateUtils;
 // 12071994
 
 public class LoadSheddingSimMain {
-	public DataCache innerCache;
-	public DataCache outerCache;
+	//public DataCache innerCache;
+	//public DataCache outerCache;
+	
+	public DataCacheClock innerCache;
+	public DataCacheClock outerCache;
+	
 	public int outputCounter;
 	public int executionLenghth;
 	public Date endingTime;
-	
 		
 	public LoadSheddingSimMain (String innerTableDir, int innerCacheSize, String outerTableDir, int outterCacheSize, int executionLength) throws Exception {
-		this.innerCache = new DataCache (innerTableDir, innerCacheSize, true);
-		this.outerCache = new DataCache (outerTableDir, outterCacheSize, false);
+		this.innerCache = new DataCacheClock (innerTableDir, innerCacheSize, true);
+		this.outerCache = new DataCacheClock (outerTableDir, outterCacheSize, false);
 		this.executionLenghth= executionLength;
-	}
-	public void performJoin () {
 	}
 	
 	public static void main (String[] args) throws Exception{
-		LoadSheddingSimMain myLoadSheddingSim= new LoadSheddingSimMain ("//Users//Shared//input//epg.csv", 200000 , "//Users//Shared//input//log.csv", 300000, 1);
+		
+		LoadSheddingSimMain myLoadSheddingSim= new LoadSheddingSimMain ("//Volumes//shengao//load_shedding_data//input//epg.csv", 10 , "//Volumes//shengao//load_shedding_data//input//log.csv", 10, 1);
+		
 		
 		DataEntry innerEntry = myLoadSheddingSim.innerCache.next();
 		DataEntry outterEntry = myLoadSheddingSim.outerCache.next();
 		//myLoadSheddingSim.endingTime = innerEntry.timeStamp;
 		myLoadSheddingSim.endingTime = DateUtils.addDays(innerEntry.timeStamp, myLoadSheddingSim.executionLenghth);
 		System.out.println(myLoadSheddingSim.endingTime.toString());
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		//System.out.println(sdf.format(myLoadSheddingSim.endingTime).toString());
 		//Date startingStamp = innerEntry.timeStamp;
@@ -67,7 +72,7 @@ public class LoadSheddingSimMain {
 				//System.out.println(sdf.format(outterEntry.timeStamp).toString()+"\t"+outterEntry.key+"\t"+outterEntry.otherDataFields);
 				//System.out.println(sdf.format(innerEntry.timeStamp).toString()+"\t"+innerEntry.key+"\t"+innerEntry.otherDataFields);
 				
-				if( myLoadSheddingSim.outerCache.currentSize>0 ) {
+				if( myLoadSheddingSim.outerCache.store.size()>0 ) {
 					int numOfJoinResults = myLoadSheddingSim.outerCache.performJoin(innerEntry, myLoadSheddingSim.innerCache);
 					if(numOfJoinResults>0) {
 						//System.out.println(numOfJoinResults);
@@ -99,7 +104,7 @@ public class LoadSheddingSimMain {
 		System.out.println(innerEntry.timeStamp.toString());
 		System.out.println(outterEntry.timeStamp.toString());
 		
-		File file = new File("//Users//Shared//loadshedding_pre_results.csv");
+		File file = new File("output//loadshedding_pre_results.csv");
 	    BufferedWriter output = new BufferedWriter(new FileWriter(file, true));
 	    //output.write(entry.timeStamp.toString()+"\t"+inputEntry.timeStamp.toString()+"\t"+entry.key+"\n");
 	    output.write(myLoadSheddingSim.outputCounter+"\n");
