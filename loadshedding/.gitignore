@@ -8,3 +8,5 @@
 *.war
 *.ear
 
+#OC generated files#
+.DS_Store
