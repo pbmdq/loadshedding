@@ -1,6 +1,6 @@
 /target
 /output
-
+/input
 *.class
 
 # Package Files #

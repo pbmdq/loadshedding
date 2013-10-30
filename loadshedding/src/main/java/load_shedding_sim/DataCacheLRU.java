@@ -4,8 +4,8 @@ import java.util.*;
 public class DataCacheLRU extends DataCache {
 	Queue <DataEntry> index; // LRU queue
 	
-	public DataCacheLRU ( String inputFileDir, int allowedSize, boolean isInner ) throws Exception {
-		super( inputFileDir, allowedSize, isInner, "LRU");
+	public DataCacheLRU ( String inputFileDir, int allowedSize, boolean isInner , String outputDir) throws Exception {
+		super( inputFileDir, allowedSize, isInner, "LRU", outputDir);
 		this.initOutPutFiles();
 		index = new LinkedList<DataEntry> (); 
 	}

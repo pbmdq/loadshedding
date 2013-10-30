@@ -2,7 +2,8 @@ package load_shedding_sim;
 import java.util.*;
 
 public class DataCacheKhoa extends DataCache {
-	PriorityQueue <DataEntry> index; // LRU queue
+	PriorityQueue <DataEntry> index;
+	int depthForsee;
 	
 	public class numberOfTotalResultsCompare implements Comparator<DataEntry> {
 	    public int compare(DataEntry x, DataEntry y) {
@@ -14,11 +15,25 @@ public class DataCacheKhoa extends DataCache {
 	        	return 0;
 	    }
 	}
-	public DataCacheKhoa ( String inputFileDir, int allowedSize, boolean isInner ) throws Exception {
-		super( inputFileDir, allowedSize, isInner, "LRU");
+	public DataCacheKhoa ( String inputFileDir, int allowedSize, boolean isInner, String outputDir,int depth) throws Exception {
+		super( inputFileDir, allowedSize, isInner, "KHOA-"+depth, outputDir);
+		this.depthForsee = depth;
 		this.initOutPutFiles();
+		
+		
+		
 		Comparator<DataEntry> comparator = new numberOfTotalResultsCompare();
 		index = new PriorityQueue<DataEntry> (allowedSize, comparator);  
+	}
+	public DataEntry next(int simTimeStamp) throws Exception {
+		String inputStrig;
+		if ((inputStrig = fileBufferReader.readLine()) != null) {
+			DataEntry newEntry = new DataEntry (inputStrig, simTimeStamp, this.depthForsee);
+			return newEntry;
+		} else {
+			fileBufferReader.close();
+			return null;
+		}
 	}
 	
 	public DataEntry evicatOneEntry () throws Exception {
