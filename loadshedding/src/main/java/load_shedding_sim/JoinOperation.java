@@ -11,7 +11,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-public class LoadSheddingSimMain {
+public class JoinOperation {
 	//public DataCache innerCache;
 	//public DataCache outerCache;
 	
@@ -33,7 +33,7 @@ public class LoadSheddingSimMain {
 	
 	static File overallResults;
 	
-	public LoadSheddingSimMain (String innerTableDir, int innerCacheSize, String outerTableDir, int outterCacheSize, int executionLength, String type, int oracleDepth) throws Exception {
+	public JoinOperation (String innerTableDir, int innerCacheSize, String outerTableDir, int outterCacheSize, int executionLength, String type, int oracleDepth) throws Exception {
 		if( type.equals("ORACLE") ) {
 			innerCache = new DataCacheKhoa (innerTableDir, innerCacheSize, true, outputDir, oracleDepth);
 			outerCache = new DataCacheKhoa (outerTableDir, outterCacheSize, false, outputDir, oracleDepth);
@@ -132,7 +132,7 @@ public class LoadSheddingSimMain {
 			return inputArguments;
 		}catch (ParseException pe){ usage(options); return null; }
 	}
-	public static void main (String[] args) throws Exception{
+	public void test (String[] args) throws Exception{
 		/*
 		inputArguments = parserArguments(args);
 		String innerDir;

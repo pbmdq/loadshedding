@@ -26,11 +26,10 @@ public class DataEntry {
 		numberOfLargestPastResults = 0;
 	}
 	public DataEntry ( String inputString, int simTimeStamp) throws Exception {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String[]  afterSplit = inputString.split("\t");
 		
-		Date timeStamp 			= sdf.parse(afterSplit[1]);
-		Date timeStampEnd 		= sdf.parse(afterSplit[2]);
+		Date timeStamp 			= Debug.sdf.parse(afterSplit[1]);
+		Date timeStampEnd 		= Debug.sdf.parse(afterSplit[2]);
 		
 		this.simTimeStamp		= Integer.parseInt(afterSplit[0]);
 		this.timeStamp 			= timeStamp;
