@@ -19,8 +19,9 @@ public class DataCacheClock extends DataCache{
 			if(!tempItr.hasNext()) 
 				tempItr = index.listIterator(0);
 			tempData = tempItr.next();
-			if(tempData.numberOfPastResults>0)
+			if(tempData.numberOfPastResults>0) {
 				tempData.numberOfPastResults--;
+			}
 			else
 				break;
 		}

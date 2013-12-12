@@ -13,12 +13,11 @@ public class OracleMakingSRBench extends OracleMaking{
 			int counter = 0;
 			while (fileScanner.hasNext() ) {
 				String inputStrig 		= fileScanner.nextLine();
-				DataEntryBase newEntry 	= new DataEntrySRBench (inputStrig, 0);
+				DataEntry newEntry 		= new DataEntrySRBench (inputStrig, 0);
 				Statement stmt 			= connection.createStatement();
-	            Long startTime 			=  newEntry.timeStamp.getTime();
+	            Long startTime 			= newEntry.timeStamp.getTime();
 	        	String SQL				= null;
 	        	ResultSet rs;
-	        	
 	        	switch (inputID) {
 					case Debug.ORACLE_SR_WINDSPEED :
 						SQL = "SELECT * FROM windspeed_simtime where abs( time - " +startTime+ " )< 200 AND sersorid != '"+newEntry.otherDataFields+"' AND measurment = " +newEntry.key+" AND measurment >= 10"+" ;";

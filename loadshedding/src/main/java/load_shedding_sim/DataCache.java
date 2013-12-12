@@ -8,26 +8,24 @@ import com.google.common.collect.*;
 import com.google.common.io.*;
 
 public class DataCache {
-	//File fileInput;
-	BufferedReader fileBufferReader;
+	BufferedReader fileBufferReader; // for input file
 	
 	File fileOutputStat;
-	//BufferedWriter bufferOutputStat;
 	File fileOutputResults;
-	//BufferedWriter bufferOutputResults;
 	
 	public int allowedSize;
 	boolean isInner;
 	String outputFileNameBase;
 	String outputDir;
 	
+	int currentLocalSimTime;
 	HashMultimap <String,DataEntry> store;
 	
 	public void initOutPutFiles() throws Exception {
-		java.util.Date date= new java.util.Date();
 		fileOutputStat = new File(outputDir+outputFileNameBase+".txt");
 		fileOutputResults = new File(outputDir+outputFileNameBase+"_resutls"+".txt");
 	}
+	
 	public DataCache ( String inputFileDir, int allowedSize, boolean isInner, String outputFileNameBase, String outputDir ) throws Exception {
 		//fileInput 	 = new File(inputFileDir);
 		fileBufferReader = new BufferedReader( new FileReader(inputFileDir));
@@ -39,18 +37,15 @@ public class DataCache {
 		this.outputFileNameBase = outputFileNameBase;
 		initOutPutFiles();
 	}
-
-	public DataEntry evicatOneEntry () throws Exception {
-			return null;
-	}
+	// TO overload by subclass
+	public DataEntry evicatOneEntry () throws Exception {return null;}
+	public void insertOneEntry ( DataEntry newEntry) {}
 	
-	public void insertOneEntry ( DataEntry newEntry) {
-	}
-	
-	public DataEntry next(int simTimeStamp) throws Exception {
+	public DataEntry next(int simTimeStamp, int joinType) throws Exception {
 		String inputStrig;
 		if ((inputStrig = fileBufferReader.readLine()) != null) {
-			DataEntry newEntry = new DataEntry (inputStrig, simTimeStamp);
+			DataEntry newEntry = joinType<20?new DataEntrySRBench (inputStrig, simTimeStamp):new DataEntryVistaTV (inputStrig, simTimeStamp);
+			this.currentLocalSimTime = newEntry.localSimTimeStamp;
 			return newEntry;
 		} else {
 			fileBufferReader.close();
@@ -61,32 +56,66 @@ public class DataCache {
 		return Debug.sdf.format(input).toString();
 	}
 
-	public void printJoinResutls (DataEntry entry, DataEntry inputEntry ) throws Exception {
-		try {
-			
+	public void printJoinResutls (DataEntry entry, DataEntry inputEntry,  DataCache inputCache) throws Exception {
+		//try {
 			if(this.isInner) {
-				Files.append(inputEntry.simTimeStamp+","+convertDateFormate(entry.timeStamp)+","+convertDateFormate(entry.timeStampEnd)+","+entry.key+","+entry.otherDataFields+","+convertDateFormate(inputEntry.timeStamp)+","+convertDateFormate(inputEntry.timeStampEnd)+","+inputEntry.otherDataFields+"\n", fileOutputResults, Charsets.UTF_8);
+				//Files.append(inputEntry.simTimeStamp+","+convertDateFormate(entry.timeStamp)+","+convertDateFormate(entry.timeStampEnd)+","+entry.key+","+entry.otherDataFields+","+convertDateFormate(inputEntry.timeStamp)+","+convertDateFormate(inputEntry.timeStampEnd)+","+inputEntry.otherDataFields+"\n", fileOutputResults, Charsets.UTF_8);
+				//Files.append(this.currentLocalSimTime+","+convertDateFormate(entry.timeStamp)+","+convertDateFormate(entry.timeStampEnd)+","+entry.key+","+entry.otherDataFields+","+convertDateFormate(inputEntry.timeStamp)+","+convertDateFormate(inputEntry.timeStampEnd)+","+inputEntry.otherDataFields+","+entry.localSimTimeStamp+","+this.currentLocalSimTime+","+inputEntry.localSimTimeStamp+","+inputCache.currentLocalSimTime+"\n", fileOutputResults, Charsets.UTF_8);
+				System.out.println(this.currentLocalSimTime+","+convertDateFormate(entry.timeStamp)+","+convertDateFormate(entry.timeStampEnd)+","+entry.key+","+entry.otherDataFields+","+convertDateFormate(inputEntry.timeStamp)+","+convertDateFormate(inputEntry.timeStampEnd)+","+inputEntry.otherDataFields+","+entry.localSimTimeStamp+","+this.currentLocalSimTime+","+inputEntry.localSimTimeStamp+","+inputCache.currentLocalSimTime+"\n");
 			} else {
-				Files.append(inputEntry.simTimeStamp+","+convertDateFormate(inputEntry.timeStamp)+","+convertDateFormate(inputEntry.timeStampEnd)+","+inputEntry.key+","+inputEntry.otherDataFields+","+convertDateFormate(entry.timeStamp)+","+convertDateFormate(entry.timeStampEnd)+","+entry.otherDataFields+"\n", fileOutputResults, Charsets.UTF_8);
+				//Files.append(this.currentLocalSimTime+","+convertDateFormate(inputEntry.timeStamp)+","+convertDateFormate(inputEntry.timeStampEnd)+","+inputEntry.key+","+inputEntry.otherDataFields+","+convertDateFormate(entry.timeStamp)+","+convertDateFormate(entry.timeStampEnd)+","+entry.otherDataFields+","+inputEntry.localSimTimeStamp+","+inputCache.currentLocalSimTime+","+entry.localSimTimeStamp+","+this.currentLocalSimTime+"\n", fileOutputResults, Charsets.UTF_8);
+				System.out.println(this.currentLocalSimTime+","+convertDateFormate(inputEntry.timeStamp)+","+convertDateFormate(inputEntry.timeStampEnd)+","+inputEntry.key+","+inputEntry.otherDataFields+","+convertDateFormate(entry.timeStamp)+","+convertDateFormate(entry.timeStampEnd)+","+entry.otherDataFields+","+inputEntry.localSimTimeStamp+","+inputCache.currentLocalSimTime+","+entry.localSimTimeStamp+","+this.currentLocalSimTime+"\n");
+				
 			}
-			
-		} catch ( IOException e ) {
+			//}
+		/* 
+		catch ( IOException e ) {
 			e.printStackTrace();
 		}
+		*/
+			
 	}
 	
-	public int performJoin(DataEntry inputEntry, DataCache inputCache) throws Exception {
-		Set<DataEntry> entries = store.get(inputEntry.key);
+	public int performJoin(DataEntry inputEntry, DataCache inputCache, int joinType) throws Exception {
 		int numResults = 0;
-		//if(entries.size()>0) {
-		for(DataEntry entry:entries) {
-			if(!(entry.timeStampEnd.before(inputEntry.timeStamp)) && !(entry.timeStamp.after(inputEntry.timeStampEnd))) {
-				//printJoinResutls(entry, inputEntry);
-				entry.numberOfPastResults++;
-				entry.numberOfLargestPastResults++;
-				numResults++;
-			}
-	    }
+		switch (joinType) {
+			case Debug.JOIN_TYPE_ONE_WAY:
+				if(Integer.parseInt(inputEntry.key) >= 10) {
+					Set<DataEntry> entries = store.get(inputEntry.key);
+					inputEntry.afterJoin(entries.size());
+					for(DataEntry entry:entries) {
+						if((Math.abs(entry.timeStampEnd.getTime() - inputEntry.timeStamp.getTime()) < 200)&& !entry.otherDataFields.equals(inputEntry.otherDataFields))
+						{
+							//printJoinResutls(entry, inputEntry);
+							entry.afterJoin(1);
+							numResults++;
+						}
+					}
+					inputEntry.afterJoin(numResults);
+				}
+				break;
+			case Debug.JOIN_TYPE_TWO_WAY:
+			case 22:
+				Set<DataEntry> entries = store.get(inputEntry.key);
+				if(!this.getClass().equals(DataCacheClock.class))
+					inputEntry.afterJoin(entries.size());
+				for(DataEntry entry:entries) {
+					if(!(entry.timeStampEnd.before(inputEntry.timeStamp)) && !(entry.timeStamp.after(inputEntry.timeStampEnd))) {
+						//printJoinResutls(entry, inputEntry, inputCache);
+						entry.afterJoin(1);
+						if(this.getClass().equals(DataCacheFIFOClock.class) || this.getClass().equals(DataCacheFIFOLRU.class) ) {
+							((DataCacheFIFOClock) this).hitInCache(entry);
+							((DataCacheFIFOClock) inputCache).numOfTotalFIFOResults++;
+						}else if(this.getClass().equals(DataCacheTRUELRU.class)){
+							((DataCacheTRUELRU) this).index.get(entry.hashCode());
+						}
+
+						numResults++;
+					}
+					
+				}
+				break;
+		}
 		inputCache.insertOneEntry(inputEntry);
 		inputCache.evicatOneEntry();
 		return numResults;

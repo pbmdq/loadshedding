@@ -25,10 +25,10 @@ public class DataCacheKhoa extends DataCache {
 		Comparator<DataEntry> comparator = new numberOfTotalResultsCompare();
 		index = new PriorityQueue<DataEntry> (allowedSize, comparator);  
 	}
-	public DataEntry next(int simTimeStamp) throws Exception {
+	public DataEntry next(int simTimeStamp, int joinType) throws Exception {
 		String inputStrig;
 		if ((inputStrig = fileBufferReader.readLine()) != null) {
-			DataEntry newEntry = new DataEntry (inputStrig, simTimeStamp, this.depthForsee);
+			DataEntry newEntry = joinType<20?new DataEntrySRBench (inputStrig, simTimeStamp):new DataEntryVistaTV (inputStrig, simTimeStamp);
 			return newEntry;
 		} else {
 			fileBufferReader.close();

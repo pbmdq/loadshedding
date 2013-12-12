@@ -5,55 +5,31 @@ import java.util.*;
 public class DataEntry {
 	public Date timeStamp;
 	public Date timeStampEnd;
-	public String key;
-	public String otherDataFields;
 	public int numberOfTotalResults;
 	public int numberOfPastResults;
 	public int numberOfLargestPastResults;
 	public int simTimeStamp;
+	public int localSimTimeStamp;
 	public int [][]oracle;
+	public String key;
+	public String otherDataFields;
+	// FIFO+LRU/CLOCK
+	public boolean isInFIFO = true;
+	// FIFO+FIFOs
+	public int segID = 0;
 	
-	public DataEntry (Date timeStamp, int simTimeStamp, Date timeStampEnd, String key, String otherDataFields, int numberOfTotalResults ) {
-		this.timeStamp 			= timeStamp;
-		this.simTimeStamp		= simTimeStamp;
-		this.timeStampEnd 		= timeStampEnd;
-		this.key 				= key;
-		this.otherDataFields	= otherDataFields;
-		this.numberOfTotalResults = numberOfTotalResults;
-		//Random randomGenerator = new Random();
-		//numberOfPastResults = randomGenerator.nextInt(3);
-		numberOfPastResults 	= 0;
-		numberOfLargestPastResults = 0;
+	public void afterJoin( int numberOfResults){
+		this.numberOfLargestPastResults	+= numberOfResults;
+		this.numberOfPastResults 		+= numberOfResults;
 	}
-	public DataEntry ( String inputString, int simTimeStamp) throws Exception {
-		String[]  afterSplit = inputString.split("\t");
-		
-		Date timeStamp 			= Debug.sdf.parse(afterSplit[1]);
-		Date timeStampEnd 		= Debug.sdf.parse(afterSplit[2]);
-		
-		this.simTimeStamp		= Integer.parseInt(afterSplit[0]);
-		this.timeStamp 			= timeStamp;
-		this.timeStampEnd 		= timeStampEnd;
-		this.key 				= afterSplit[3];
-		this.otherDataFields	= afterSplit[4];
-		this.numberOfTotalResults = 0;
-		numberOfPastResults 	= 0;
-		numberOfLargestPastResults= 0;
+	public void beforeSwitchToCLOCK( ){
+		this.numberOfLargestPastResults	= 1;
+		this.numberOfPastResults 		= 1;
+		this.isInFIFO 					= false;
 	}
-	public DataEntry ( String inputString, int simTimeStamp, int depth) throws Exception {
-		//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String[]  afterSplit = inputString.split("\t");
-		
-		Date timeStamp = Debug.sdf.parse(afterSplit[1]);
-		Date timeStampEnd = Debug.sdf.parse(afterSplit[2]);
-		
-		this.simTimeStamp		= Integer.parseInt(afterSplit[0]);
-		this.timeStamp 			= timeStamp;
-		this.timeStampEnd 		= timeStampEnd;
-		this.key 				= afterSplit[3];
-		this.otherDataFields	= afterSplit[4];
-		numberOfPastResults 	= 0;
-		numberOfLargestPastResults= 0;
-		this.numberOfTotalResults= Integer.parseInt(afterSplit[5+depth]);
+	public void beforeSwitchNextSeg( int segID ){
+		this.numberOfLargestPastResults	= 1;
+		this.numberOfPastResults 		= 1;
+		this.segID = segID;
 	}
 }

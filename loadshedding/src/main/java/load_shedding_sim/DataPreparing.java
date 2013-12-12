@@ -10,7 +10,7 @@ import com.google.common.io.*;
 
 // access all directory and concatenate all the files into one
 
-public class SRBenchPreparing {
+public class DataPreparing {
 	public void mergeFiles () {
 		File mergeBase = new File("//Users//shengao//Documents//Research_data//SR-Bench_data//charley//WindSpeed//");
 		File destFile  = new File("//Users//shengao//Documents//Research_data//SR-Bench_data//charley//WindSpeed.csv");
@@ -24,6 +24,25 @@ public class SRBenchPreparing {
 				List<String> temp = Files.readLines(myarray[j], Charsets.UTF_8);
 			} catch (Exception e) {}
 		}
+	}
+	public void addGlobalSimTime () {
+		File input = new File("input//epg_with_oracle.csv");
+		File output = new File("input//epg_sim_time_local.csv"); 
+		Scanner fileScanner = null;
+		int simTime = 1;
+		try {
+			fileScanner = new Scanner(input);
+		}catch (Exception e) {}
+		while (fileScanner.hasNext() ) {
+			String inputString 		= fileScanner.nextLine();
+			String[]  afterSplit = inputString.contains("\t")?inputString.split("\t"):inputString.split(",");
+			
+			try {
+				
+				Files.append(afterSplit[0]+"\t"+afterSplit[1]+"\t"+afterSplit[2]+"\t"+afterSplit[3]+"\t"+afterSplit[4]+"\t"+simTime+"\n", output, Charsets.UTF_8);
+			}catch (Exception e) {} 
+			simTime++;
+		} 
 	}
 	
 	public void addSimTime () {

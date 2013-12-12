@@ -2,16 +2,19 @@ package load_shedding_sim;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class DataEntrySRBench extends DataEntryBase{
+public class DataEntrySRBench extends DataEntry{
 	public DataEntrySRBench ( String inputString, int simTimeStamp, int depth) throws Exception {
 		this ( inputString, simTimeStamp);
 		String[]  afterSplit = inputString.split("\t");
-		this.numberOfTotalResults= Integer.parseInt(afterSplit[2+depth]);
+		this.numberOfTotalResults= Integer.parseInt(afterSplit[4+depth]);
 	}
 	public DataEntrySRBench ( String inputString, int simTimeStamp) throws Exception {
 		String[]  afterSplit = inputString.split(",");
+		//System.out.println(afterSplit[1]);
 		this.simTimeStamp		= Integer.parseInt(afterSplit[0]);
+		//this.timeStamp 			= Debug.sdf.parse(afterSplit[1]);
 		this.timeStamp 			= new Date(Long.parseLong(afterSplit[1]));
+		//System.out.println(this.timeStamp.getTime());
 		this.timeStampEnd 		= this.timeStamp;
 		this.key 				= afterSplit[3];
 		this.otherDataFields	= afterSplit[2];

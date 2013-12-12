@@ -1,25 +1,29 @@
 package load_shedding_sim;
 import java.util.*;
 
-public class DataCacheLRU extends DataCache {
-	Queue <DataEntry> index; // LRU queue
+public class DataCacheLRU extends DataCacheClock{
 	
-	public DataCacheLRU ( String inputFileDir, int allowedSize, boolean isInner , String outputDir) throws Exception {
-		super( inputFileDir, allowedSize, isInner, "LRU", outputDir);
-		this.initOutPutFiles();
-		index = new LinkedList<DataEntry> (); 
+	public DataCacheLRU ( String inputFileDir, int allowedSize , boolean isInner, String outputDir) throws Exception {
+		super( inputFileDir, allowedSize, isInner, outputDir);
 	}
-	
-	public DataEntry evicatOneEntry () throws Exception {
-		if( store.size() == allowedSize ) {
-			DataEntry temEntry = index.poll();
-			store.remove(temEntry.key, temEntry);
-			return temEntry;
-		} else
-			return null;
-	}
-	public void insertOneEntry ( DataEntry newEntry) {
-		store.put(newEntry.key, newEntry);
-		index.add(newEntry);
+	public DataEntry replaceVictimEntry ( DataEntry input) {
+		DataEntry tempData;
+		ListIterator <DataEntry> tempItr = index.listIterator(pointer);
+		for(;;)
+		{
+			if(!tempItr.hasNext()) 
+				tempItr = index.listIterator(0);
+			tempData = tempItr.next();
+			if(tempData.numberOfPastResults>0) {
+				tempData.numberOfPastResults--;
+				if(tempData.numberOfPastResults>0)
+					tempData.numberOfPastResults = 1;
+			} else
+				break;
+		}
+		tempItr.set(input);
+		store.remove(tempData.key, tempData);
+		pointer = tempItr.nextIndex();
+		return tempData;
 	}
 }
