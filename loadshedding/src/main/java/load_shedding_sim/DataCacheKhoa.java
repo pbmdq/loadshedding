@@ -15,8 +15,8 @@ public class DataCacheKhoa extends DataCache {
 	        	return 0;
 	    }
 	}
-	public DataCacheKhoa ( String inputFileDir, int allowedSize, boolean isInner, String outputDir,int depth) throws Exception {
-		super( inputFileDir, allowedSize, isInner, "KHOA-"+depth, outputDir);
+	public DataCacheKhoa ( String inputFileDir, int allowedSize, boolean isInner, boolean enableReasoning, String outputDir,int depth) throws Exception {
+		super( inputFileDir, allowedSize, isInner, enableReasoning, "KHOA-"+depth, outputDir);
 		this.depthForsee = depth;
 		this.initOutPutFiles();
 		

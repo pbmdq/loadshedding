@@ -6,8 +6,8 @@ public class DataCacheTRUELRU extends DataCache{
 	
 	LRUCache index; // LRU queue
 	
-	public DataCacheTRUELRU ( String inputFileDir, int allowedSize, boolean isInner , String outputDir) throws Exception {
-		super( inputFileDir, allowedSize, isInner, "TrueLRU", outputDir);
+	public DataCacheTRUELRU ( String inputFileDir, int allowedSize, boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
+		super( inputFileDir, allowedSize, isInner, enableReasoning, "TrueLRU", outputDir);
 		index = new LRUCache(allowedSize);
 	}
 

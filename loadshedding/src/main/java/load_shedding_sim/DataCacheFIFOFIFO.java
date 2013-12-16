@@ -19,8 +19,8 @@ public class DataCacheFIFOFIFO extends DataCache{
 		}
 		
 	}
-	public DataCacheFIFOFIFO ( String inputFileDir, int allowedSize , boolean isInner, String outputDir, double sizeFIFO, int thresHold) throws Exception {
-		super( inputFileDir, allowedSize, isInner, "FIFOCLOCK", outputDir);
+	public DataCacheFIFOFIFO ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir, double sizeFIFO, int thresHold) throws Exception {
+		super( inputFileDir, allowedSize, isInner, enableReasoning, "FIFOCLOCK", outputDir);
 		indexFIFO 	=  new LinkedList [Debug.FF_NUM_SEG] ; 
 		for(int i = 0; i<Debug.FF_NUM_SEG; i++) {
 			indexFIFO[i] = new LinkedList <DataEntry>();

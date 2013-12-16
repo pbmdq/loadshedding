@@ -3,8 +3,8 @@ import java.util.*;
 
 public class DataCacheFIFOLRU extends DataCacheFIFOClock{
 	
-		public DataCacheFIFOLRU(String inputFileDir, int allowedSize , boolean isInner, String outputDir, double sizeFIFO, int thresHold) throws Exception {
-		super(inputFileDir, allowedSize, isInner, outputDir, sizeFIFO, thresHold);
+		public DataCacheFIFOLRU(String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir, double sizeFIFO, int thresHold) throws Exception {
+		super(inputFileDir, allowedSize, isInner, enableReasoning, outputDir, sizeFIFO, thresHold);
 		// TODO Auto-generated constructor stub
 	}
 

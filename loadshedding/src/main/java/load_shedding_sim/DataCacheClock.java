@@ -5,8 +5,8 @@ public class DataCacheClock extends DataCache{
 	LinkedList <DataEntry> index;
 	int pointer;
 	
-	public DataCacheClock ( String inputFileDir, int allowedSize , boolean isInner, String outputDir) throws Exception {
-		super( inputFileDir, allowedSize, isInner, "CLOCK", outputDir);
+	public DataCacheClock ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
+		super( inputFileDir, allowedSize, isInner, enableReasoning, "CLOCK", outputDir);
 		index = new LinkedList<DataEntry> (); 
 		pointer = 0;
 	}
@@ -40,6 +40,6 @@ public class DataCacheClock extends DataCache{
 			replaceVictimEntry(newEntry);
 		} else
 			index.add(newEntry);
-		store.put(newEntry.key, newEntry);
+		this.putintoStore(newEntry);
 	}
 }

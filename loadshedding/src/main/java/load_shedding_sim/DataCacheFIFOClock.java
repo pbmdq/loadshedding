@@ -28,8 +28,8 @@ public class DataCacheFIFOClock extends DataCache{
 		numOfTotalKeeping		= 0;
 		
 	}
-	public DataCacheFIFOClock ( String inputFileDir, int allowedSize , boolean isInner, String outputDir, double sizeFIFO, int thresHold) throws Exception {
-		super( inputFileDir, allowedSize, isInner, "FIFOCLOCK", outputDir);
+	public DataCacheFIFOClock ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir, double sizeFIFO, int thresHold) throws Exception {
+		super( inputFileDir, allowedSize, isInner, enableReasoning, "FIFOCLOCK", outputDir);
 		indexCLOCK 	= new LinkedList<DataEntry> (); 
 		indexFIFO	= new LinkedList<DataEntry> (); 
 		this.sizeFIFO= (int)(sizeFIFO*allowedSize);

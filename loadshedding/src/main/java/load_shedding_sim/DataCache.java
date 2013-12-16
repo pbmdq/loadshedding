@@ -18,15 +18,29 @@ public class DataCache {
 	String outputFileNameBase;
 	String outputDir;
 	
-	int currentLocalSimTime;
 	HashMultimap <String,DataEntry> store;
+	boolean enableReasoning;
+	PriorityQueue<DataEntry> endingTimeQ ;
+	int currentLocalSimTime;
+	Date currentRealTimeStamp;
+	
+	public void putintoStore(DataEntry input){
+		store.put(input.key, input);
+		if(this.enableReasoning)
+			endingTimeQ.offer(input);
+	}
+	public void deleteFromStore(DataEntry input){
+		store.remove(input.key, input);
+		if(this.enableReasoning)
+			endingTimeQ.remove(input);
+	}
 	
 	public void initOutPutFiles() throws Exception {
 		fileOutputStat = new File(outputDir+outputFileNameBase+".txt");
 		fileOutputResults = new File(outputDir+outputFileNameBase+"_resutls"+".txt");
 	}
 	
-	public DataCache ( String inputFileDir, int allowedSize, boolean isInner, String outputFileNameBase, String outputDir ) throws Exception {
+	public DataCache ( String inputFileDir, int allowedSize, boolean isInner, boolean enableReasoning, String outputFileNameBase, String outputDir ) throws Exception {
 		//fileInput 	 = new File(inputFileDir);
 		fileBufferReader = new BufferedReader( new FileReader(inputFileDir));
 		this.allowedSize = allowedSize;
@@ -36,6 +50,15 @@ public class DataCache {
 		
 		this.outputFileNameBase = outputFileNameBase;
 		initOutPutFiles();
+		
+		this.endingTimeQ = new PriorityQueue<DataEntry>(allowedSize, new Comparator<DataEntry>(){
+	                public int compare(DataEntry a, DataEntry b){
+	                    if (a.timeStampEnd.before(b.timeStampEnd) ) return -1;
+	                    if (a.timeStampEnd.after(b.timeStampEnd) ) return 1;
+	                    return 0;
+	                }
+	            });
+		this.enableReasoning = enableReasoning;
 	}
 	// TO overload by subclass
 	public DataEntry evicatOneEntry () throws Exception {return null;}
@@ -45,7 +68,8 @@ public class DataCache {
 		String inputStrig;
 		if ((inputStrig = fileBufferReader.readLine()) != null) {
 			DataEntry newEntry = joinType<20?new DataEntrySRBench (inputStrig, simTimeStamp):new DataEntryVistaTV (inputStrig, simTimeStamp);
-			this.currentLocalSimTime = newEntry.localSimTimeStamp;
+			this.currentLocalSimTime 	= newEntry.localSimTimeStamp;
+			this.currentRealTimeStamp 	= newEntry.timeStamp;
 			return newEntry;
 		} else {
 			fileBufferReader.close();
@@ -76,7 +100,8 @@ public class DataCache {
 			
 	}
 	
-	public int performJoin(DataEntry inputEntry, DataCache inputCache, int joinType) throws Exception {
+	public int performJoin(DataEntry inputEntry, DataCache inputCache, int joinType, Date currentSystemReadTimeStamp) throws Exception {
+		this.currentRealTimeStamp = inputEntry.timeStamp;
 		int numResults = 0;
 		switch (joinType) {
 			case Debug.JOIN_TYPE_ONE_WAY:
@@ -116,6 +141,7 @@ public class DataCache {
 				}
 				break;
 		}
+		inputCache.garbageCollection(currentSystemReadTimeStamp);
 		inputCache.insertOneEntry(inputEntry);
 		inputCache.evicatOneEntry();
 		return numResults;
@@ -124,6 +150,7 @@ public class DataCache {
 	public void endOfCache() throws Exception {
 		//bufferOutputResults.flush();
 		//bufferOutputResults.close();
-		
+	}
+	public void garbageCollection ( Date currentSystemReadTimeStamp) {
 	}
 }

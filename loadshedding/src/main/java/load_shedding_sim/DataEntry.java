@@ -5,6 +5,7 @@ import java.util.*;
 public class DataEntry {
 	public Date timeStamp;
 	public Date timeStampEnd;
+	//public Date realTimeStamp; entering time stamp maybe
 	public int numberOfTotalResults;
 	public int numberOfPastResults;
 	public int numberOfLargestPastResults;

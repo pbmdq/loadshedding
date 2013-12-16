@@ -3,8 +3,8 @@ import java.util.*;
 
 public class DataCacheLRU extends DataCacheClock{
 	
-	public DataCacheLRU ( String inputFileDir, int allowedSize , boolean isInner, String outputDir) throws Exception {
-		super( inputFileDir, allowedSize, isInner, outputDir);
+	public DataCacheLRU ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
+		super( inputFileDir, allowedSize, isInner, enableReasoning, outputDir);
 	}
 	public DataEntry replaceVictimEntry ( DataEntry input) {
 		DataEntry tempData;
