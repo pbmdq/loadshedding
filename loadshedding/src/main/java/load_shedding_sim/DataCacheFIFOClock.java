@@ -20,6 +20,7 @@ public class DataCacheFIFOClock extends DataCache{
 	int pointerCLOCK;
 	
 	public void warmupReset () {
+		super.warmupReset();
 		numOfTotalFIFOResults 	= 0;
 		numOfTotalFIFOInput		= 0;
 		numOfTotalCLOCKResults	= 0;
@@ -39,7 +40,7 @@ public class DataCacheFIFOClock extends DataCache{
 		warmupReset ();
 	}
 	public String printStat() {
-		return numOfTotalFIFOResults +"\t"+ numOfTotalCLOCKResults +"\t"+ numOfTotalKeeping+"\t"+ numOfThrowingAway;
+		return super.printStat()+"\t"+numOfTotalFIFOResults +"\t"+ numOfTotalCLOCKResults +"\t"+ numOfTotalKeeping+"\t"+ numOfThrowingAway;
 	}
 	
 	public boolean willThrowAway( DataEntry temEntry ){

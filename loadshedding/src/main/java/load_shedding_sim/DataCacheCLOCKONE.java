@@ -1,9 +1,9 @@
 package load_shedding_sim;
 import java.util.*;
 
-public class DataCacheLRU extends DataCacheClock{
+public class DataCacheCLOCKONE extends DataCacheClock{
 	
-	public DataCacheLRU ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
+	public DataCacheCLOCKONE ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
 		super( inputFileDir, allowedSize, isInner, enableReasoning, outputDir);
 	}
 	public DataEntry replaceVictimEntry ( DataEntry input) {
@@ -21,8 +21,9 @@ public class DataCacheLRU extends DataCacheClock{
 			} else
 				break;
 		}
+		this.numOfEvication++;
 		tempItr.set(input);
-		store.remove(tempData.key, tempData);
+		this.deleteFromStore(tempData);
 		pointer = tempItr.nextIndex();
 		return tempData;
 	}

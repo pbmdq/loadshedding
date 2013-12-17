@@ -24,6 +24,16 @@ public class DataCache {
 	int currentLocalSimTime;
 	Date currentRealTimeStamp;
 	
+	int numOfEvication;
+	int numOfExpiried;
+	
+	public void warmupReset () {
+		numOfEvication 	= 0;
+		numOfExpiried	= 0;
+	}
+	public String printStat() {
+		return this.numOfEvication +"\t"+ this.numOfExpiried;
+	}
 	public void putintoStore(DataEntry input){
 		store.put(input.key, input);
 		if(this.enableReasoning)
@@ -122,7 +132,7 @@ public class DataCache {
 			case Debug.JOIN_TYPE_TWO_WAY:
 			case 22:
 				Set<DataEntry> entries = store.get(inputEntry.key);
-				if(!this.getClass().equals(DataCacheClock.class))
+				if(!this.getClass().equals(DataCacheClock.class) && !this.getClass().equals(DataCacheCLOCKONE.class))
 					inputEntry.afterJoin(entries.size());
 				for(DataEntry entry:entries) {
 					if(!(entry.timeStampEnd.before(inputEntry.timeStamp)) && !(entry.timeStamp.after(inputEntry.timeStampEnd))) {

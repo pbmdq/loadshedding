@@ -13,6 +13,7 @@ public class DataCacheFIFO extends DataCache {
 		if( store.size() >= allowedSize ) {
 			DataEntry temEntry = index.poll();
 			this.deleteFromStore(temEntry);
+			this.numOfEvication++;
 			return temEntry;
 		} else
 			return null;
@@ -34,6 +35,7 @@ public class DataCacheFIFO extends DataCache {
 				
 				this.deleteFromStore(temEntry);
 				index.remove(temEntry);
+				this.numOfExpiried++;
 				temEntry = this.endingTimeQ.peek();
 //				System.out.println(this.store.size());
 //				System.out.println(this.index.size());

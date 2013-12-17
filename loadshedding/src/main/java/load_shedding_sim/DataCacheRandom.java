@@ -1,46 +1,43 @@
 package load_shedding_sim;
 import java.util.*;
 
-public class DataCacheClock extends DataCache{
-	LinkedList <DataEntry> index;
-	int pointer;
+public class DataCacheRandom extends DataCacheClock {
+	//LinkedList <DataEntry> index;
+	//int pointer;
 	
-	public DataCacheClock ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
-		super( inputFileDir, allowedSize, isInner, enableReasoning, "CLOCK", outputDir);
-		index = new LinkedList<DataEntry> (); 
-		pointer = 0;
+	public DataCacheRandom ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
+		super( inputFileDir, allowedSize, isInner, enableReasoning, outputDir);
+		//index = new LinkedList<DataEntry> (); 
+		//pointer = 0;
 	}
 	
 	public DataEntry replaceVictimEntry ( DataEntry input) {
-		DataEntry tempData;
-		ListIterator <DataEntry> tempItr = index.listIterator(pointer);
-		for(;;)
-		{
-			if(!tempItr.hasNext()) 
-				tempItr = index.listIterator(0);
+		DataEntry tempData = null;
+		ListIterator <DataEntry> tempItr = index.listIterator(0);
+		int evicatIndex = (int)(Math.random()*(index.size()));
+		//evicatIndex = 56;
+		//System.out.println(evicatIndex);
+		for(int i = 0; i < evicatIndex-1; i++) {
 			tempData = tempItr.next();
-			if(tempData.numberOfPastResults>0) {
-				tempData.numberOfPastResults--;
-			}
-			else
-				break;
 		}
-		this.numOfEvication++;
-		tempItr.set(input);
-		this.deleteFromStore(tempData);
-		//store.remove(tempData.key, tempData);
-		pointer = tempItr.nextIndex();
-		return tempData;
+		
+		if(tempData != null) {
+			this.numOfEvication++;
+			tempItr.set(input);
+			this.deleteFromStore(tempData);
+			//store.remove(tempData.key, tempData);
+			return tempData;
+		}else
+			return null;
 	}
 	
-	public DataEntry evicatOneEntry () {
+	/*public DataEntry evicatOneEntry () {
 		return null;
 	}
 	
 	public void insertOneEntry ( DataEntry newEntry) {
-		if( store.size() >= allowedSize ) {
+		if( store.size() == allowedSize ) {
 			replaceVictimEntry(newEntry);
-			//index.add(newEntry);
 		} else
 			index.add(newEntry);
 		this.putintoStore(newEntry);
@@ -66,5 +63,5 @@ public class DataCacheClock extends DataCache{
 //				System.out.println(this.index.size());
 			}
 		}
-	}
+	}*/
 }

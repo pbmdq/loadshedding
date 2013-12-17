@@ -83,7 +83,8 @@ public class JoinOperation {
 		options.addOption( "So", "onnerSize", true, "outter cache Size");
 		options.addOption( "L", "length", true, "legnth of experiment in days");
 		options.addOption( "ORACLE", "oracle", true, "oracle experiments");
-		options.addOption( "LRU", "lru", false, "lru experiments");
+		options.addOption( "RANDOM", "random", false, "random evicate one");
+		options.addOption( "CLOCKONE", "clock 1", false, "using clock 1 to simulate lru");
 		options.addOption( "TRUELRU", "turelru", false, "not implemented as clock");
 		options.addOption( "FIFO", "fifo", false, "fifo experiments");
 		options.addOption( "CLOCK", "clock", false, "clock experiments");
@@ -130,10 +131,12 @@ public class JoinOperation {
 		if( inputArguments.hasOption( "ORACLE" ) ) {
 			type = "ORACLE";
 			oracleDepth = Integer.parseInt(inputArguments.getOptionValue("ORACLE") );
+		} else if (inputArguments.hasOption( "RANDOM" ) ) {
+			type = "RANDOM";
 		} else if (inputArguments.hasOption( "FIFO" ) ) {
 			type = "FIFO";
-		} else if (inputArguments.hasOption( "LRU" ) ) {
-			type = "LRU";
+		} else if (inputArguments.hasOption( "CLOCKONE" ) ) {
+			type = "CLOCKONE";
 		} else if (inputArguments.hasOption( "TRUELRU" ) ) {
 			type = "TRUELRU";
 		} else if (inputArguments.hasOption( "CLOCK" ) ) {
@@ -156,12 +159,15 @@ public class JoinOperation {
 		} else if (type.equals( "FIFO" ) ) {
 			innerCache = new DataCacheFIFO (innerDir, innerSize, true, enableReasoning, outputDir);
 			outerCache = outterDir==null?null:new DataCacheFIFO (outterDir, outterSize, false, enableReasoning, outputDir);
+		} else if (type.equals( "RANDOM" ) ) {
+			innerCache = new DataCacheRandom (innerDir, innerSize, true, enableReasoning, outputDir);
+			outerCache = outterDir==null?null:new DataCacheRandom (outterDir, outterSize, false, enableReasoning, outputDir);
 		} else if (type.equals( "TRUELRU" ) ) {
 			innerCache = new DataCacheTRUELRU (innerDir, innerSize, true, enableReasoning, outputDir);
 			outerCache = outterDir==null?null:new DataCacheTRUELRU (outterDir, outterSize, false, enableReasoning, outputDir);
-		} else if (type.equals( "LRU" ) ) {
-			innerCache = new DataCacheLRU (innerDir, innerSize, true, enableReasoning, outputDir);
-			outerCache = outterDir==null?null:new DataCacheLRU (outterDir, outterSize, false, enableReasoning, outputDir);
+		} else if (type.equals( "CLOCKONE" ) ) {
+			innerCache = new DataCacheCLOCKONE (innerDir, innerSize, true, enableReasoning, outputDir);
+			outerCache = outterDir==null?null:new DataCacheCLOCKONE (outterDir, outterSize, false, enableReasoning, outputDir);
 		} else if (type.equals( "CLOCK" ) ) {
 			innerCache = new DataCacheClock (innerDir, innerSize, true, enableReasoning, outputDir);
 			outerCache = outterDir==null?null:new DataCacheClock (outterDir, outterSize, false, enableReasoning, outputDir);
@@ -226,10 +232,9 @@ public class JoinOperation {
 		if(this.isWarmingUp == true && this.simTimeStamp>=this.numOfWarmUp) {
 			//System.out.println(innerCache.currentLocalSimTime);
 			//System.out.println(outerCache.currentLocalSimTime);
-			if(this.innerCache.getClass().equals(DataCacheFIFOClock.class) || this.innerCache.getClass().equals(DataCacheFIFOLRU.class) ) {
-				((DataCacheFIFOClock) this.innerCache).warmupReset();
-				((DataCacheFIFOClock) this.outerCache).warmupReset();
-			} 
+			
+			this.innerCache.warmupReset();
+			this.outerCache.warmupReset();
 			outputCounter 	= 0;
 			isWarmingUp 	= false;
 		}
@@ -279,11 +284,13 @@ public class JoinOperation {
 		Files.append(outputCounter+"\n", overallResults, Charsets.UTF_8);
 		
 		//System.out.println("End of two way join");
+		System.out.println(outputCounter+"\t"+ this.innerCache.printStat()+"\t"+this.outerCache.printStat());
+		/*
 		if(this.innerCache.getClass().equals(DataCacheFIFOClock.class) || this.innerCache.getClass().equals(DataCacheFIFOLRU.class) ) {
 			System.out.println(outputCounter+"\t"+((DataCacheFIFOClock) this.innerCache).printStat()+"\t"+((DataCacheFIFOClock) this.outerCache).printStat());
 		} else
 			System.out.println(outputCounter);
-	
+		 */
 	}
 	public void printInputWriteSimTimeStamp() throws Exception{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
