@@ -117,10 +117,24 @@ public class JoinOperation {
 		innerDir 	= inputArguments.getOptionValue("innerDir");
 		outterDir 	= inputArguments.getOptionValue("outterDir");
 		
-		double innerRatio = Double.parseDouble(inputArguments.getOptionValue("innerSize") );
-		innerSize = innerRatio<=1?(int)(innerRatio*(double)(Debug.EPG_MAX_SIZE)):(int)innerRatio;
-		double outterRatio= Double.parseDouble(inputArguments.getOptionValue("onnerSize") );
-		outterSize = outterRatio<=1?(int)(outterRatio*(double)(Debug.LOG_MAX_SIZE)):(int)outterRatio;
+		double innerRatio;
+		double outterRatio;
+		
+		switch(joinType) {
+		case Debug.JOIN_TYPE_ONE_WAY:
+			innerRatio = Double.parseDouble(inputArguments.getOptionValue("innerSize") );
+			innerSize = innerRatio<=1?(int)(innerRatio*(double)(Debug.WINDSPEED_MAX_SIZE)):(int)innerRatio;
+			outterRatio= Double.parseDouble(inputArguments.getOptionValue("onnerSize") );
+			outterSize = outterRatio<=1?(int)(outterRatio*(double)(Debug.WINDSPEED_MAX_SIZE)):(int)outterRatio;
+			break;
+		case Debug.JOIN_TYPE_TWO_WAY:
+			innerRatio = Double.parseDouble(inputArguments.getOptionValue("innerSize") );
+			innerSize = innerRatio<=1?(int)(innerRatio*(double)(Debug.EPG_MAX_SIZE)):(int)innerRatio;
+			outterRatio= Double.parseDouble(inputArguments.getOptionValue("onnerSize") );
+			outterSize = outterRatio<=1?(int)(outterRatio*(double)(Debug.LOG_MAX_SIZE)):(int)outterRatio;
+			break;
+		}
+		
 		
 		outputDir 	= inputArguments.getOptionValue("outputDir");
 		outputDir 	= outputDir.concat(String.valueOf((new java.util.Date()).getTime())+"//");
@@ -208,11 +222,12 @@ public class JoinOperation {
 	}
 	public void oneWayJoinSim() throws Exception{
 		System.out.println("Start one way Join ");
-		
+		//Date tempCurrentTimeStamp = null;
 		DataEntry innerEntry = innerCache.next(simTimeStamp++, joinType);
 		endingTime = DateUtils.addDays(innerEntry.timeStamp, this.executionLenghth);
 		innerCache.insertOneEntry(innerEntry);
 		while ( innerEntry != null && (innerEntry.timeStamp.before(endingTime) )) {
+			//tempCurrentTimeStamp = innerEntry.timeStamp;
 			this.currentSystemReadTimeStamp = innerEntry.timeStamp;
 			if( innerCache.store.size()>0 ) {
 				int numOfJoinResults = innerCache.performJoin(innerEntry, innerCache, joinType, this.currentSystemReadTimeStamp);
@@ -220,13 +235,16 @@ public class JoinOperation {
 					outputCounter += numOfJoinResults;
 				}
 			}
+			//this.currentSystemReadTimeStamp = tempCurrentTimeStamp;
+			//System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString());
+			
 			innerEntry = innerCache.next(simTimeStamp, joinType);
 			simTimeStamp++;
 		}
 		innerCache.endOfCache();
 		
 		Files.append(outputCounter+"\n", overallResults, Charsets.UTF_8);
-		System.out.println("End of one way join; Num of results "+outputCounter);
+		System.out.println(outputCounter+"\t"+ this.innerCache.printStat()+"\t"+this.outerCache.printStat());
 	}
 	public void warmupReset(){
 		if(this.isWarmingUp == true && this.simTimeStamp>=this.numOfWarmUp) {

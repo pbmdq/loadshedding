@@ -117,6 +117,8 @@ public class DataCache {
 			case Debug.JOIN_TYPE_ONE_WAY:
 				if(Integer.parseInt(inputEntry.key) >= 10) {
 					Set<DataEntry> entries = store.get(inputEntry.key);
+					//if(!this.getClass().equals(DataCacheClock.class) && !this.getClass().equals(DataCacheCLOCKONE.class))
+					//	inputEntry.afterJoin(entries.size());
 					inputEntry.afterJoin(entries.size());
 					for(DataEntry entry:entries) {
 						if((Math.abs(entry.timeStampEnd.getTime() - inputEntry.timeStamp.getTime()) < 200)&& !entry.otherDataFields.equals(inputEntry.otherDataFields))
@@ -138,6 +140,7 @@ public class DataCache {
 					if(!(entry.timeStampEnd.before(inputEntry.timeStamp)) && !(entry.timeStamp.after(inputEntry.timeStampEnd))) {
 						//printJoinResutls(entry, inputEntry, inputCache);
 						entry.afterJoin(1);
+						// two part stuff
 						if(this.getClass().equals(DataCacheFIFOClock.class) || this.getClass().equals(DataCacheFIFOLRU.class) ) {
 							((DataCacheFIFOClock) this).hitInCache(entry);
 							((DataCacheFIFOClock) inputCache).numOfTotalFIFOResults++;

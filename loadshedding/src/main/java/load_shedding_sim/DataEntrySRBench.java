@@ -2,6 +2,8 @@ package load_shedding_sim;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.apache.commons.lang3.time.DateUtils;
+
 public class DataEntrySRBench extends DataEntry{
 	public DataEntrySRBench ( String inputString, int simTimeStamp, int depth) throws Exception {
 		this ( inputString, simTimeStamp);
@@ -15,7 +17,7 @@ public class DataEntrySRBench extends DataEntry{
 		//this.timeStamp 			= Debug.sdf.parse(afterSplit[1]);
 		this.timeStamp 			= new Date(Long.parseLong(afterSplit[1]));
 		//System.out.println(this.timeStamp.getTime());
-		this.timeStampEnd 		= this.timeStamp;
+		this.timeStampEnd 		= DateUtils.addMilliseconds(this.timeStamp, 300);
 		this.key 				= afterSplit[3];
 		this.otherDataFields	= afterSplit[2];
 	}
