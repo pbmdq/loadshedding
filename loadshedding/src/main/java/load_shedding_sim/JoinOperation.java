@@ -35,6 +35,13 @@ public class JoinOperation {
 	
 	public Date currentSystemReadTimeStamp;
 	
+	public Date nextSlotTimeStamp;
+	public int currentSlotInnerInput;
+	public int currentSlotOutterInput;
+	public int currentSlotResutls;
+	public int slotSize = 10;
+	
+	/*
 	public class TimeLineStat{
 		public int currentSlotInnerInput;
 		public int currentSlotOutterInput;
@@ -49,7 +56,7 @@ public class JoinOperation {
 		
 		public Date slotStartingTimeStamp;
 		
-		public TimeLineStat( int sizeOfSlot){
+		public TimeLineStat( int sizeOfSlot ){
 			this.sizeOfSlot = sizeOfSlot;
 			totalSlotNum = 0;
 		}
@@ -69,6 +76,7 @@ public class JoinOperation {
 		}
 	}
 	
+	*/
 	private static CommandLine parserArguments (String[] args) throws Exception{
 		options.addOption( "T", "joinType",  true, "specify the join type (one-way,twp-way and Query)");
 		/*
@@ -221,25 +229,38 @@ public class JoinOperation {
 		
 	}
 	public void oneWayJoinSim() throws Exception{
-		System.out.println("Start one way Join ");
+		//System.out.println("Start one way Join ");
 		//Date tempCurrentTimeStamp = null;
 		DataEntry innerEntry = innerCache.next(simTimeStamp++, joinType);
 		endingTime = DateUtils.addDays(innerEntry.timeStamp, this.executionLenghth);
 		innerCache.insertOneEntry(innerEntry);
+		
+		nextSlotTimeStamp = DateUtils.addSeconds(innerEntry.timeStamp, slotSize);
+		
 		while ( innerEntry != null && (innerEntry.timeStamp.before(endingTime) )) {
 			//tempCurrentTimeStamp = innerEntry.timeStamp;
 			this.currentSystemReadTimeStamp = innerEntry.timeStamp;
 			if( innerCache.store.size()>0 ) {
 				int numOfJoinResults = innerCache.performJoin(innerEntry, innerCache, joinType, this.currentSystemReadTimeStamp);
-				if(numOfJoinResults>0) {
-					outputCounter += numOfJoinResults;
-				}
+				
+				outputCounter += numOfJoinResults;
+				// stat
+				this.currentSlotInnerInput++;
+				this.currentSlotResutls+=numOfJoinResults;
+				
 			}
 			//this.currentSystemReadTimeStamp = tempCurrentTimeStamp;
 			//System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString());
 			
 			innerEntry = innerCache.next(simTimeStamp, joinType);
 			simTimeStamp++;
+			
+			/*if(nextSlotTimeStamp.before(this.currentSystemReadTimeStamp)) {
+				nextSlotTimeStamp = DateUtils.addSeconds(this.currentSystemReadTimeStamp, slotSize);
+				System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString()+"\t"+this.currentSlotInnerInput +"\t"+this.currentSlotResutls +"\t"+this.innerCache.store.size());
+				this.currentSlotInnerInput 	= 0;
+				this.currentSlotResutls 	= 0;
+			}*/
 		}
 		innerCache.endOfCache();
 		
@@ -264,7 +285,7 @@ public class JoinOperation {
 		DataEntry outterEntry 	= outerCache.next(simTimeStamp++, joinType);
 		endingTime = DateUtils.addDays(innerEntry.timeStamp, this.executionLenghth);
 		int numOfJoinResults;
-		
+		nextSlotTimeStamp = DateUtils.addHours(innerEntry.timeStamp, slotSize);
 		while ( innerEntry != null && outterEntry != null && (innerEntry.timeStamp.before(endingTime) || outterEntry.timeStamp.before(endingTime)) ) {
 			// set the join direction, left join right or right join left
 			Date tempCurrentTimeStamp = null;
@@ -278,6 +299,7 @@ public class JoinOperation {
 				tempInputCache	= innerCache;
 				//numOfJoinResults = outerCache.performJoin(innerEntry, innerCache, joinType);
 				innerEntry = innerCache.next(simTimeStamp, joinType);
+				this.currentSlotInnerInput++;
 			} else {
 				tempCurrentTimeStamp = outterEntry.timeStamp;
 				tempJoinCache 	= innerCache;
@@ -285,6 +307,7 @@ public class JoinOperation {
 				tempInputCache	= outerCache;
 				//numOfJoinResults = innerCache.performJoin(outterEntry, outerCache, joinType);
 				outterEntry = outerCache.next(simTimeStamp, joinType);
+				this.currentSlotOutterInput++;
 			}
 			simTimeStamp++;
 			this.currentSystemReadTimeStamp = tempCurrentTimeStamp;
@@ -293,6 +316,18 @@ public class JoinOperation {
 			//System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString());
 			outputCounter +=numOfJoinResults;
 			this.warmupReset();
+			
+			
+/*			this.currentSlotResutls+=numOfJoinResults;
+			if(nextSlotTimeStamp.before(this.currentSystemReadTimeStamp)) {
+				nextSlotTimeStamp = DateUtils.addHours(this.currentSystemReadTimeStamp, slotSize);
+				System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString()+"\t"+this.currentSlotInnerInput +"\t"+this.currentSlotOutterInput +"\t"+this.currentSlotResutls+"\t"+this.innerCache.store.size()+"\t"+this.outerCache.store.size() );
+				this.currentSlotInnerInput 	= 0;
+				this.currentSlotResutls 	= 0;
+				this.currentSlotOutterInput = 0;
+				
+			}*/
+			
 		}
 		//System.out.println(innerCache.currentLocalSimTime);
 		//System.out.println(outerCache.currentLocalSimTime);

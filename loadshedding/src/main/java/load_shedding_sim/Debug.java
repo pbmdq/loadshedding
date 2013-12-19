@@ -27,3 +27,4 @@ public interface Debug {
 	
 	public final int FF_NUM_SEG = 3;
 }
+//select A.time, B.time, A.sensorid , B.sensorid  from windspeed A, windspeed B where (B.time-A.time)<=200 and A.measurment = b.measurment and A.measurment > 10
