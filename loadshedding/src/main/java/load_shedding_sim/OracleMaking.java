@@ -91,7 +91,7 @@ public class OracleMaking {
 			while ( rs.next() ) {
 	             String simTimeString = rs.getString("sim_time");
 	             int resultSimTime = Integer.parseInt(simTimeString);
-	             int tmp = Math.abs(resultSimTime-inputEntry.simTimeStamp);
+	             int tmp = Math.abs(resultSimTime-inputEntry.localSimTimeStamp);
 	             //double precentage = (double) (tmp); /// (double)(totalInput);
 	             //System.out.println(precentage +"\t" + tmp+"\t" + resultSimTime+"\t" + entrySimTime);
 	             int arrayIndex = 0;
@@ -105,7 +105,7 @@ public class OracleMaking {
 	         }
 			 
 			 StringBuffer buf = new StringBuffer();
-			 buf.append(inputEntry.simTimeStamp+"\t"+Debug.sdf.format(inputEntry.timeStamp).toString()+"\t"+Debug.sdf.format(inputEntry.timeStampEnd).toString()+"\t"+inputEntry.key+"\t"+inputEntry.otherDataFields);
+			 buf.append(inputEntry.localSimTimeStamp+"\t"+Debug.sdf.format(inputEntry.timeStamp).toString()+"\t"+Debug.sdf.format(inputEntry.timeStampEnd).toString()+"\t"+inputEntry.key+"\t"+inputEntry.otherDataFields);
              for(int i = 0; i < Debug.ORACLE_MAX_ARRAY_INDEX; i++)
             	 buf.append("\t"+Integer.toString(counting[i][0]));
              //System.err.println(buf.toString());
@@ -157,7 +157,7 @@ public String countingFutureVistaTV (ResultSet rs, DataEntry inputEntry) {
 		     }
 			 
 			 StringBuffer buf = new StringBuffer();
-			 buf.append(inputEntry.simTimeStamp+"\t"+Debug.sdf.format(inputEntry.timeStamp).toString()+"\t"+Debug.sdf.format(inputEntry.timeStampEnd).toString()+"\t"+inputEntry.key+"\t"+inputEntry.otherDataFields);
+			 buf.append(inputEntry.localSimTimeStamp+"\t"+Debug.sdf.format(inputEntry.timeStamp).toString()+"\t"+Debug.sdf.format(inputEntry.timeStampEnd).toString()+"\t"+inputEntry.key+"\t"+inputEntry.otherDataFields);
              for(int i = 0; i < Debug.ORACLE_MAX_ARRAY_INDEX; i++)
             	 buf.append("\t"+Integer.toString(counting[i][0]));
              //System.err.println(buf.toString());

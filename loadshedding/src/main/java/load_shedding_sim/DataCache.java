@@ -20,12 +20,14 @@ public class DataCache {
 	
 	HashMultimap <String,DataEntry> store;
 	boolean enableReasoning;
-	PriorityQueue<DataEntry> endingTimeQ ;
+	PriorityQueue<DataEntry> endingTimeQ;
+	
 	int currentLocalSimTime;
 	Date currentRealTimeStamp;
 	
 	int numOfEvication;
 	int numOfExpiried;
+	Deprecation myDeprecation;
 	
 	public void warmupReset () {
 		numOfEvication 	= 0;
@@ -69,16 +71,16 @@ public class DataCache {
 	                }
 	            });
 		this.enableReasoning = enableReasoning;
+		myDeprecation = new Deprecation (allowedSize);
 	}
 	// TO overload by subclass
 	public DataEntry evicatOneEntry () throws Exception {return null;}
 	public void insertOneEntry ( DataEntry newEntry) {}
 	
-	public DataEntry next(int simTimeStamp, int joinType) throws Exception {
+	public DataEntry next(int globalSimTimeStamp, int joinType) throws Exception {
 		String inputStrig;
 		if ((inputStrig = fileBufferReader.readLine()) != null) {
-			DataEntry newEntry = joinType<20?new DataEntrySRBench (inputStrig, simTimeStamp):new DataEntryVistaTV (inputStrig, simTimeStamp);
-			this.currentLocalSimTime 	= newEntry.localSimTimeStamp;
+			DataEntry newEntry = joinType<20?new DataEntrySRBench (inputStrig, currentLocalSimTime++):new DataEntryVistaTV (inputStrig, currentLocalSimTime++);
 			this.currentRealTimeStamp 	= newEntry.timeStamp;
 			return newEntry;
 		} else {
@@ -125,6 +127,7 @@ public class DataCache {
 							//printJoinResutls(entry, inputEntry);
 							entry.afterJoin(1);
 							numResults++;
+							this.myDeprecation.addOneStat(currentLocalSimTime - entry.localSimTimeStamp);
 						}
 					}
 					inputEntry.afterJoin(numResults);
@@ -133,7 +136,7 @@ public class DataCache {
 			case Debug.JOIN_TYPE_TWO_WAY:
 			case 22:
 				Set<DataEntry> entries = store.get(inputEntry.key);
-				if(!this.getClass().equals(DataCacheClock.class) && !this.getClass().equals(DataCacheCLOCKONE.class))
+				if(!this.getClass().equals(DataCacheClock.class) && !this.getClass().equals(DataCacheCLOCKONE.class) && !this.getClass().equals(DataCacheCLOCKM.class))
 					inputEntry.afterJoin(entries.size());
 				for(DataEntry entry:entries) {
 					if(!(entry.timeStampEnd.before(inputEntry.timeStamp)) && !(entry.timeStamp.after(inputEntry.timeStampEnd))) {
@@ -146,7 +149,8 @@ public class DataCache {
 						}else if(this.getClass().equals(DataCacheTRUELRU.class)){
 							((DataCacheTRUELRU) this).index.get(entry.hashCode());
 						}
-
+						if(this.isInner)
+							this.myDeprecation.addOneStat(currentLocalSimTime - entry.localSimTimeStamp);
 						numResults++;
 					}
 					

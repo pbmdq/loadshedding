@@ -85,6 +85,7 @@ public class DataCacheFIFOClock extends DataCache{
 					store.remove(temEntry.key, temEntry);
 				}
 				return temEntry;
+				
 			}
 		}
 		return null;

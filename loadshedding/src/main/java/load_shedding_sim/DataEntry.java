@@ -7,9 +7,9 @@ public class DataEntry {
 	public Date timeStampEnd;
 	//public Date realTimeStamp; entering time stamp maybe
 	public int numberOfTotalResults;
-	public int numberOfPastResults;
+	public double numberOfPastResults;
 	public int numberOfLargestPastResults;
-	public int simTimeStamp;
+	public int globalSimTimeStamp;
 	public int localSimTimeStamp;
 	public int [][]oracle;
 	public String key;

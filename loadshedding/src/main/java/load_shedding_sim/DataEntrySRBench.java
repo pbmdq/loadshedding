@@ -13,8 +13,8 @@ public class DataEntrySRBench extends DataEntry{
 	public DataEntrySRBench ( String inputString, int simTimeStamp) throws Exception {
 		String[]  afterSplit = inputString.split(",");
 		//System.out.println(afterSplit[1]);
-		this.simTimeStamp		= Integer.parseInt(afterSplit[0]);
-		//this.timeStamp 			= Debug.sdf.parse(afterSplit[1]);
+		//this.simTimeStamp		= simTimeStamp;
+		this.localSimTimeStamp	= simTimeStamp;
 		this.timeStamp 			= new Date(Long.parseLong(afterSplit[1]));
 		//System.out.println(this.timeStamp.getTime());
 		this.timeStampEnd 		= DateUtils.addMilliseconds(this.timeStamp, 300);

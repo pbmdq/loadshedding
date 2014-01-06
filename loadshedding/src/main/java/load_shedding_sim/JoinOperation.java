@@ -19,7 +19,7 @@ public class JoinOperation {
 	public int outputCounter;
 	public int executionLenghth;
 	public Date endingTime;
-	public int simTimeStamp;
+	public int globalSimTimeStamp;
 	
 	static CommandLine inputArguments;
 	static CommandLineParser parser = new GnuParser();
@@ -96,6 +96,7 @@ public class JoinOperation {
 		options.addOption( "TRUELRU", "turelru", false, "not implemented as clock");
 		options.addOption( "FIFO", "fifo", false, "fifo experiments");
 		options.addOption( "CLOCK", "clock", false, "clock experiments");
+		options.addOption( "CLOCKM", "clockm", false, "clock in the middle");
 		options.addOption( "FIFOCLOCK", "fifoclock", false, "fifo+clock experiments");
 		options.addOption( "FIFOLRU", "fifolru", false, "fifo+lru experiments");
 		options.addOption( "FIFOFIFO", "fifofifo", false, "fifo+fifos experiments");
@@ -163,6 +164,8 @@ public class JoinOperation {
 			type = "TRUELRU";
 		} else if (inputArguments.hasOption( "CLOCK" ) ) {
 			type = "CLOCK";
+		} else if (inputArguments.hasOption( "CLOCKM" ) ) {
+			type = "CLOCKM";
 		} else if (inputArguments.hasOption( "FIFOCLOCK" ) ) {
 			type = "FIFOCLOCK";
 		} else if (inputArguments.hasOption( "FIFOLRU" ) ) {
@@ -193,6 +196,9 @@ public class JoinOperation {
 		} else if (type.equals( "CLOCK" ) ) {
 			innerCache = new DataCacheClock (innerDir, innerSize, true, enableReasoning, outputDir);
 			outerCache = outterDir==null?null:new DataCacheClock (outterDir, outterSize, false, enableReasoning, outputDir);
+		}else if (type.equals( "CLOCKM" ) ) {
+			innerCache = new DataCacheCLOCKM(innerDir, innerSize, true, enableReasoning, outputDir);
+			outerCache = outterDir==null?null:new DataCacheCLOCKM (outterDir, outterSize, false, enableReasoning, outputDir);
 		}else if (type.equals( "FIFOCLOCK" ) ) {
 			double sizeFIFO = Double.parseDouble(inputArguments.getOptionValue("sizeOfFIFO"));
 			int thresHold= Integer.parseInt(inputArguments.getOptionValue("TH"));
@@ -231,7 +237,7 @@ public class JoinOperation {
 	public void oneWayJoinSim() throws Exception{
 		//System.out.println("Start one way Join ");
 		//Date tempCurrentTimeStamp = null;
-		DataEntry innerEntry = innerCache.next(simTimeStamp++, joinType);
+		DataEntry innerEntry = innerCache.next(globalSimTimeStamp++, joinType);
 		endingTime = DateUtils.addDays(innerEntry.timeStamp, this.executionLenghth);
 		innerCache.insertOneEntry(innerEntry);
 		
@@ -252,8 +258,8 @@ public class JoinOperation {
 			//this.currentSystemReadTimeStamp = tempCurrentTimeStamp;
 			//System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString());
 			
-			innerEntry = innerCache.next(simTimeStamp, joinType);
-			simTimeStamp++;
+			innerEntry = innerCache.next(globalSimTimeStamp, joinType);
+			globalSimTimeStamp++;
 			
 			/*if(nextSlotTimeStamp.before(this.currentSystemReadTimeStamp)) {
 				nextSlotTimeStamp = DateUtils.addSeconds(this.currentSystemReadTimeStamp, slotSize);
@@ -268,10 +274,7 @@ public class JoinOperation {
 		System.out.println(outputCounter+"\t"+ this.innerCache.printStat()+"\t"+this.outerCache.printStat());
 	}
 	public void warmupReset(){
-		if(this.isWarmingUp == true && this.simTimeStamp>=this.numOfWarmUp) {
-			//System.out.println(innerCache.currentLocalSimTime);
-			//System.out.println(outerCache.currentLocalSimTime);
-			
+		if(this.isWarmingUp == true && this.globalSimTimeStamp>=this.numOfWarmUp) {
 			this.innerCache.warmupReset();
 			this.outerCache.warmupReset();
 			outputCounter 	= 0;
@@ -280,12 +283,15 @@ public class JoinOperation {
 		
 	}
 	public void twoWayJoinSim() throws Exception{
-		//System.out.println("Start two way Join");
-		DataEntry innerEntry 	= innerCache.next(simTimeStamp++, joinType);
-		DataEntry outterEntry 	= outerCache.next(simTimeStamp++, joinType);
+		DataEntry innerEntry 	= innerCache.next(globalSimTimeStamp++, joinType);
+		DataEntry outterEntry 	= outerCache.next(globalSimTimeStamp++, joinType);
 		endingTime = DateUtils.addDays(innerEntry.timeStamp, this.executionLenghth);
 		int numOfJoinResults;
-		nextSlotTimeStamp = DateUtils.addHours(innerEntry.timeStamp, slotSize);
+		
+		// temp stat
+		//int largestActiveEPG = 0;
+		//nextSlotTimeStamp = DateUtils.addHours(innerEntry.timeStamp, slotSize);
+				
 		while ( innerEntry != null && outterEntry != null && (innerEntry.timeStamp.before(endingTime) || outterEntry.timeStamp.before(endingTime)) ) {
 			// set the join direction, left join right or right join left
 			Date tempCurrentTimeStamp = null;
@@ -298,7 +304,7 @@ public class JoinOperation {
 				tempEntry 		= innerEntry;
 				tempInputCache	= innerCache;
 				//numOfJoinResults = outerCache.performJoin(innerEntry, innerCache, joinType);
-				innerEntry = innerCache.next(simTimeStamp, joinType);
+				innerEntry = innerCache.next(globalSimTimeStamp, joinType);
 				this.currentSlotInnerInput++;
 			} else {
 				tempCurrentTimeStamp = outterEntry.timeStamp;
@@ -306,19 +312,28 @@ public class JoinOperation {
 				tempEntry 		= outterEntry;
 				tempInputCache	= outerCache;
 				//numOfJoinResults = innerCache.performJoin(outterEntry, outerCache, joinType);
-				outterEntry = outerCache.next(simTimeStamp, joinType);
+				outterEntry = outerCache.next(globalSimTimeStamp, joinType);
 				this.currentSlotOutterInput++;
 			}
-			simTimeStamp++;
+			globalSimTimeStamp++;
 			this.currentSystemReadTimeStamp = tempCurrentTimeStamp;
 			numOfJoinResults = tempJoinCache.performJoin(tempEntry, tempInputCache, joinType, this.currentSystemReadTimeStamp);
 			
 			//System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString());
 			outputCounter +=numOfJoinResults;
 			this.warmupReset();
+			//this.innerCache.myDeprecation.calculateDepreciate(this.globalSimTimeStamp, this.numOfWarmUp*2/3);
+			//this.outerCache.myDeprecation.calculateDepreciate(this.globalSimTimeStamp, this.numOfWarmUp*2/3);
+			this.innerCache.myDeprecation.calculateDepreciate(this.globalSimTimeStamp, 10000);
+			//this.outerCache.myDeprecation.calculateDepreciate(this.globalSimTimeStamp, 100);
 			
-			
-/*			this.currentSlotResutls+=numOfJoinResults;
+			// temp stat
+			/*			
+			if(largestActiveEPG <  this.innerCache.store.size()) {
+				largestActiveEPG = this.innerCache.store.size();
+				System.out.println(largestActiveEPG);
+			}
+			this.currentSlotResutls+=numOfJoinResults;
 			if(nextSlotTimeStamp.before(this.currentSystemReadTimeStamp)) {
 				nextSlotTimeStamp = DateUtils.addHours(this.currentSystemReadTimeStamp, slotSize);
 				System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString()+"\t"+this.currentSlotInnerInput +"\t"+this.currentSlotOutterInput +"\t"+this.currentSlotResutls+"\t"+this.innerCache.store.size()+"\t"+this.outerCache.store.size() );
@@ -347,28 +362,28 @@ public class JoinOperation {
 	}
 	public void printInputWriteSimTimeStamp() throws Exception{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		DataEntry innerEntry = innerCache.next(++simTimeStamp, joinType);
+		DataEntry innerEntry = innerCache.next(++globalSimTimeStamp, joinType);
 		File file = new File("output//epg_sim_time.csv");
 	    BufferedWriter output = new BufferedWriter(new FileWriter(file, true));
-		output.write(simTimeStamp+"\t"+sdf.format(innerEntry.timeStamp).toString()+"\t"+sdf.format(innerEntry.timeStampEnd).toString()+"\t"+innerEntry.key+"\t"+innerEntry.otherDataFields+"\n");
+		output.write(globalSimTimeStamp+"\t"+sdf.format(innerEntry.timeStamp).toString()+"\t"+sdf.format(innerEntry.timeStampEnd).toString()+"\t"+innerEntry.key+"\t"+innerEntry.otherDataFields+"\n");
 	    
-	    DataEntry outterEntry = outerCache.next(++simTimeStamp, joinType);
+	    DataEntry outterEntry = outerCache.next(++globalSimTimeStamp, joinType);
 		File file1 = new File("output//log_sim_time.csv");
 	    BufferedWriter output1 = new BufferedWriter(new FileWriter(file1, true));
-		output1.write(simTimeStamp+"\t"+sdf.format(outterEntry.timeStamp).toString()+"\t"+sdf.format(outterEntry.timeStampEnd).toString()+"\t"+outterEntry.key+"\t"+outterEntry.otherDataFields+"\n");
+		output1.write(globalSimTimeStamp+"\t"+sdf.format(outterEntry.timeStamp).toString()+"\t"+sdf.format(outterEntry.timeStampEnd).toString()+"\t"+outterEntry.key+"\t"+outterEntry.otherDataFields+"\n");
 	    
 		endingTime = DateUtils.addDays(innerEntry.timeStamp, executionLenghth);
 		
 		while ( innerEntry != null && outterEntry != null && (innerEntry.timeStamp.before(endingTime) || outterEntry.timeStamp.before(endingTime))) {
-			simTimeStamp++;
+			globalSimTimeStamp++;
 			if(innerEntry.timeStamp.before(outterEntry.timeStamp)) {
-				innerEntry = innerCache.next(simTimeStamp, joinType);
+				innerEntry = innerCache.next(globalSimTimeStamp, joinType);
 				if(innerEntry != null)
-					output.write(simTimeStamp+"\t"+sdf.format(innerEntry.timeStamp).toString()+"\t"+sdf.format(innerEntry.timeStampEnd).toString()+"\t"+innerEntry.key+"\t"+innerEntry.otherDataFields+"\n");
+					output.write(globalSimTimeStamp+"\t"+sdf.format(innerEntry.timeStamp).toString()+"\t"+sdf.format(innerEntry.timeStampEnd).toString()+"\t"+innerEntry.key+"\t"+innerEntry.otherDataFields+"\n");
 			} else {
-				outterEntry = outerCache.next(simTimeStamp, joinType);
+				outterEntry = outerCache.next(globalSimTimeStamp, joinType);
 				if(outterEntry != null)
-					output1.write(simTimeStamp+"\t"+sdf.format(outterEntry.timeStamp).toString()+"\t"+sdf.format(outterEntry.timeStampEnd).toString()+"\t"+outterEntry.key+"\t"+outterEntry.otherDataFields+"\n");
+					output1.write(globalSimTimeStamp+"\t"+sdf.format(outterEntry.timeStamp).toString()+"\t"+sdf.format(outterEntry.timeStampEnd).toString()+"\t"+outterEntry.key+"\t"+outterEntry.otherDataFields+"\n");
 			}
 			
 		}

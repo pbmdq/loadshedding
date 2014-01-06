@@ -40,7 +40,7 @@ public class DataCacheClock extends DataCache{
 	public void insertOneEntry ( DataEntry newEntry) {
 		if( store.size() >= allowedSize ) {
 			replaceVictimEntry(newEntry);
-			//index.add(newEntry);
+			//System.out.println(this.index.size());
 		} else
 			index.add(newEntry);
 		this.putintoStore(newEntry);
