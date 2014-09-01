@@ -24,17 +24,25 @@ public class DataCache {
 	
 	int currentLocalSimTime;
 	Date currentRealTimeStamp;
+	// stat
+	// stat counting for whole running
+	int statOfTotalEvication;
+	int statOfTotalExpiried;
+	// stat counting for stressed part
 	
-	int numOfEvication;
-	int numOfExpiried;
+	//int statOfStressedInput;
+	
 	Deprecation myDeprecation;
 	
 	public void warmupReset () {
-		numOfEvication 	= 0;
-		numOfExpiried	= 0;
+		statOfTotalEvication 	= 0;
+		statOfTotalExpiried		= 0;
 	}
 	public String printStat() {
-		return this.numOfEvication +"\t"+ this.numOfExpiried;
+		// allowed size
+		// number of eviction
+		// num of expired entries
+		return this.allowedSize+"\t"+this.statOfTotalEvication +"\t"+ this.statOfTotalExpiried;//+"\t"+this.statOfStressedInput +"\t"+ this.statOfStressedResults;
 	}
 	public void putintoStore(DataEntry input){
 		store.put(input.key, input);
@@ -164,8 +172,6 @@ public class DataCache {
 	}
 	
 	public void endOfCache() throws Exception {
-		//bufferOutputResults.flush();
-		//bufferOutputResults.close();
 	}
 	public void garbageCollection ( Date currentSystemReadTimeStamp) {
 	}

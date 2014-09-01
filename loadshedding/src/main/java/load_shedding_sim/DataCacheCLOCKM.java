@@ -2,7 +2,7 @@ package load_shedding_sim;
 import java.util.*;
 
 public class DataCacheCLOCKM extends DataCacheClock{
-	
+	// different ways of depreciation
 	public DataCacheCLOCKM ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
 		super( inputFileDir, allowedSize, isInner, enableReasoning, outputDir);
 	}
@@ -14,12 +14,13 @@ public class DataCacheCLOCKM extends DataCacheClock{
 			if(!tempItr.hasNext()) 
 				tempItr = index.listIterator(0);
 			tempData = tempItr.next();
+			// TODO need dto taken care
 			if(tempData.numberOfPastResults>= 1) {
 				tempData.numberOfPastResults -=1;
 			} else
 				break;
 		}
-		this.numOfEvication++;
+		this.statOfTotalEvication++;
 		tempItr.set(input);
 		this.deleteFromStore(tempData);
 		pointer = tempItr.nextIndex();

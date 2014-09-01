@@ -33,13 +33,22 @@ public class JoinOperation {
 	int numOfWarmUp;
 	boolean isWarmingUp;
 	
-	public Date currentSystemReadTimeStamp;
+	public Date currentSystemRealTimeStamp;
 	
 	public Date nextSlotTimeStamp;
 	public int currentSlotInnerInput;
 	public int currentSlotOutterInput;
 	public int currentSlotResutls;
 	public int slotSize = 10;
+	
+	int statOfStressedInput;
+	int statOfStressedResults;
+	//int statOfStressedEvication;
+	//int statOfStressedExpiried;
+	int startingHourOfStressedSystem= 12;
+	int endingHourOfStressedSystem	= 14;
+	
+	
 	
 	/*
 	public class TimeLineStat{
@@ -236,42 +245,58 @@ public class JoinOperation {
 	}
 	public void oneWayJoinSim() throws Exception{
 		//System.out.println("Start one way Join ");
-		//Date tempCurrentTimeStamp = null;
+		Date tempCurrentTimeStamp = null;
 		DataEntry innerEntry = innerCache.next(globalSimTimeStamp++, joinType);
 		endingTime = DateUtils.addDays(innerEntry.timeStamp, this.executionLenghth);
 		innerCache.insertOneEntry(innerEntry);
-		
 		nextSlotTimeStamp = DateUtils.addSeconds(innerEntry.timeStamp, slotSize);
 		
 		while ( innerEntry != null && (innerEntry.timeStamp.before(endingTime) )) {
-			//tempCurrentTimeStamp = innerEntry.timeStamp;
-			this.currentSystemReadTimeStamp = innerEntry.timeStamp;
+			tempCurrentTimeStamp = innerEntry.timeStamp;
+			this.currentSystemRealTimeStamp = innerEntry.timeStamp;
 			if( innerCache.store.size()>0 ) {
-				int numOfJoinResults = innerCache.performJoin(innerEntry, innerCache, joinType, this.currentSystemReadTimeStamp);
+				int numOfJoinResults = innerCache.performJoin(innerEntry, innerCache, joinType, this.currentSystemRealTimeStamp);
 				
 				outputCounter += numOfJoinResults;
 				// stat
 				this.currentSlotInnerInput++;
 				this.currentSlotResutls+=numOfJoinResults;
 				
+				// stressed system statistics
+				Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
+				calendar.setTime(this.currentSystemRealTimeStamp);
+				//System.out.println(calendar.getTime().toString());
+				int currentSec = calendar.get(Calendar.SECOND);
+				//System.out.println(currentHour);
+				if(currentSec<=50 && currentSec >=40) {
+					//System.out.println( ");
+					this.statOfStressedInput	++;
+					this.statOfStressedResults 	+= numOfJoinResults;
+				}
 			}
-			//this.currentSystemReadTimeStamp = tempCurrentTimeStamp;
-			//System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString());
 			
 			innerEntry = innerCache.next(globalSimTimeStamp, joinType);
 			globalSimTimeStamp++;
 			
-			/*if(nextSlotTimeStamp.before(this.currentSystemReadTimeStamp)) {
-				nextSlotTimeStamp = DateUtils.addSeconds(this.currentSystemReadTimeStamp, slotSize);
-				System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString()+"\t"+this.currentSlotInnerInput +"\t"+this.currentSlotResutls +"\t"+this.innerCache.store.size());
+			/*
+			this.currentSystemRealTimeStamp = tempCurrentTimeStamp;
+			//System.out.println(Debug.sdf.format(this.currentSystemRealTimeStamp).toString());
+			
+			if(nextSlotTimeStamp.before(this.currentSystemRealTimeStamp)) {
+				nextSlotTimeStamp = DateUtils.addSeconds(this.currentSystemRealTimeStamp, slotSize);
+				System.out.println(Debug.sdf.format(this.currentSystemRealTimeStamp).toString()+"\t"+this.currentSlotInnerInput +"\t"+this.currentSlotResutls +"\t"+this.innerCache.store.size());
 				this.currentSlotInnerInput 	= 0;
 				this.currentSlotResutls 	= 0;
-			}*/
+			}
+			*/
+			
+			
 		}
 		innerCache.endOfCache();
 		
 		Files.append(outputCounter+"\n", overallResults, Charsets.UTF_8);
-		System.out.println(outputCounter+"\t"+ this.innerCache.printStat()+"\t"+this.outerCache.printStat());
+		//System.out.println(outputCounter+"\t"+ this.innerCache.printStat()+"\t"+this.outerCache.printStat());
+		this.printStat();
 	}
 	public void warmupReset(){
 		if(this.isWarmingUp == true && this.globalSimTimeStamp>=this.numOfWarmUp) {
@@ -279,8 +304,14 @@ public class JoinOperation {
 			this.outerCache.warmupReset();
 			outputCounter 	= 0;
 			isWarmingUp 	= false;
+			this.statOfStressedInput	= 0;
+			this.statOfStressedResults 	= 0;
+
 		}
 		
+	}
+	public void printStat(){
+		System.out.println(outputCounter+"\t"+this.statOfStressedInput+"\t"+this.statOfStressedResults+"\t"+ this.innerCache.printStat()+"\t"+this.outerCache.printStat());
 	}
 	public void twoWayJoinSim() throws Exception{
 		DataEntry innerEntry 	= innerCache.next(globalSimTimeStamp++, joinType);
@@ -288,12 +319,19 @@ public class JoinOperation {
 		endingTime = DateUtils.addDays(innerEntry.timeStamp, this.executionLenghth);
 		int numOfJoinResults;
 		
+		
 		// temp stat
 		//int largestActiveEPG = 0;
 		//nextSlotTimeStamp = DateUtils.addHours(innerEntry.timeStamp, slotSize);
-				
+			int numberOfInnerEntry= 0;
+			int numberOfOutterEntry= 0;
+			
+			
+			
 		while ( innerEntry != null && outterEntry != null && (innerEntry.timeStamp.before(endingTime) || outterEntry.timeStamp.before(endingTime)) ) {
 			// set the join direction, left join right or right join left
+			long startNano = System.nanoTime();
+			
 			Date tempCurrentTimeStamp = null;
 			DataCache tempJoinCache = null;
 			DataCache tempInputCache = null;
@@ -306,6 +344,7 @@ public class JoinOperation {
 				//numOfJoinResults = outerCache.performJoin(innerEntry, innerCache, joinType);
 				innerEntry = innerCache.next(globalSimTimeStamp, joinType);
 				this.currentSlotInnerInput++;
+				numberOfInnerEntry++;
 			} else {
 				tempCurrentTimeStamp = outterEntry.timeStamp;
 				tempJoinCache 	= innerCache;
@@ -314,13 +353,30 @@ public class JoinOperation {
 				//numOfJoinResults = innerCache.performJoin(outterEntry, outerCache, joinType);
 				outterEntry = outerCache.next(globalSimTimeStamp, joinType);
 				this.currentSlotOutterInput++;
+				numberOfOutterEntry++;
 			}
 			globalSimTimeStamp++;
-			this.currentSystemReadTimeStamp = tempCurrentTimeStamp;
-			numOfJoinResults = tempJoinCache.performJoin(tempEntry, tempInputCache, joinType, this.currentSystemReadTimeStamp);
+			this.currentSystemRealTimeStamp = tempCurrentTimeStamp;
+			numOfJoinResults = tempJoinCache.performJoin(tempEntry, tempInputCache, joinType, this.currentSystemRealTimeStamp);
 			
-			//System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString());
+			// statistics
 			outputCounter +=numOfJoinResults;
+			// stressed system statistics
+			Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
+			calendar.setTime(this.currentSystemRealTimeStamp);
+			//System.out.println(calendar.getTime().toString());
+			int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+			//System.out.println(currentHour);
+			//this.statOfStressedInput++;
+			if(currentHour<=this.endingHourOfStressedSystem && currentHour >=this.startingHourOfStressedSystem) {
+				//System.out.println( ");
+				this.statOfStressedInput	++;
+				this.statOfStressedResults 	+= numOfJoinResults;
+			}
+			
+			
+			
+			
 			this.warmupReset();
 			//this.innerCache.myDeprecation.calculateDepreciate(this.globalSimTimeStamp, this.numOfWarmUp*2/3);
 			//this.outerCache.myDeprecation.calculateDepreciate(this.globalSimTimeStamp, this.numOfWarmUp*2/3);
@@ -334,15 +390,17 @@ public class JoinOperation {
 				System.out.println(largestActiveEPG);
 			}
 			this.currentSlotResutls+=numOfJoinResults;
-			if(nextSlotTimeStamp.before(this.currentSystemReadTimeStamp)) {
-				nextSlotTimeStamp = DateUtils.addHours(this.currentSystemReadTimeStamp, slotSize);
-				System.out.println(Debug.sdf.format(this.currentSystemReadTimeStamp).toString()+"\t"+this.currentSlotInnerInput +"\t"+this.currentSlotOutterInput +"\t"+this.currentSlotResutls+"\t"+this.innerCache.store.size()+"\t"+this.outerCache.store.size() );
+			if(nextSlotTimeStamp.before(this.currentSystemRealTimeStamp)) {
+				nextSlotTimeStamp = DateUtils.addHours(this.currentSystemRealTimeStamp, slotSize);
+				System.out.println(Debug.sdf.format(this.currentSystemRealTimeStamp).toString()+"\t"+this.currentSlotInnerInput +"\t"+this.currentSlotOutterInput +"\t"+this.currentSlotResutls+"\t"+this.innerCache.store.size()+"\t"+this.outerCache.store.size() );
 				this.currentSlotInnerInput 	= 0;
 				this.currentSlotResutls 	= 0;
 				this.currentSlotOutterInput = 0;
 				
 			}*/
-			
+			startNano = System.nanoTime() - startNano;
+			System.out.println(startNano);
+			// 12.643 microsecond
 		}
 		//System.out.println(innerCache.currentLocalSimTime);
 		//System.out.println(outerCache.currentLocalSimTime);
@@ -351,8 +409,8 @@ public class JoinOperation {
 		outerCache.endOfCache();
 		Files.append(outputCounter+"\n", overallResults, Charsets.UTF_8);
 		
-		//System.out.println("End of two way join");
-		System.out.println(outputCounter+"\t"+ this.innerCache.printStat()+"\t"+this.outerCache.printStat());
+		this.printStat();
+		//System.out.println(outputCounter+"\t"+this.statOfStressedInput+"\t"+this.statOfStressedResults+"\t"+ this.innerCache.printStat()+"\t"+this.outerCache.printStat());
 		/*
 		if(this.innerCache.getClass().equals(DataCacheFIFOClock.class) || this.innerCache.getClass().equals(DataCacheFIFOLRU.class) ) {
 			System.out.println(outputCounter+"\t"+((DataCacheFIFOClock) this.innerCache).printStat()+"\t"+((DataCacheFIFOClock) this.outerCache).printStat());

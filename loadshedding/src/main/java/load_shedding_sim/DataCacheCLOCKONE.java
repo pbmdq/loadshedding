@@ -21,7 +21,7 @@ public class DataCacheCLOCKONE extends DataCacheClock{
 			} else
 				break;
 		}
-		this.numOfEvication++;
+		this.statOfTotalEvication++;
 		tempItr.set(input);
 		this.deleteFromStore(tempData);
 		pointer = tempItr.nextIndex();

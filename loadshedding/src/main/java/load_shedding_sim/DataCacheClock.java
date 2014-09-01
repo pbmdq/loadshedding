@@ -25,7 +25,7 @@ public class DataCacheClock extends DataCache{
 			else
 				break;
 		}
-		this.numOfEvication++;
+		this.statOfTotalEvication++;
 		tempItr.set(input);
 		this.deleteFromStore(tempData);
 		//store.remove(tempData.key, tempData);
@@ -58,7 +58,7 @@ public class DataCacheClock extends DataCache{
 //				System.out.println(this.index.size());
 				
 				this.deleteFromStore(temEntry);
-				this.numOfExpiried++;
+				this.statOfTotalExpiried++;
 				index.remove(temEntry);
 				temEntry = this.endingTimeQ.peek();
 				
