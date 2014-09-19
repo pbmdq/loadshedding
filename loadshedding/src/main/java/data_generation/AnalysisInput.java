@@ -1,9 +1,11 @@
-package load_shedding_sim;
+package data_generation;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.*;
 import java.io.*;
+
+import load_shedding_sim.Debug;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.*;

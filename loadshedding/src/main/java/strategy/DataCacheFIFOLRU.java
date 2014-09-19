@@ -1,5 +1,7 @@
-package load_shedding_sim;
+package strategy;
 import java.util.*;
+
+import data_entry.DataEntry;
 
 public class DataCacheFIFOLRU extends DataCacheFIFOClock{
 	

@@ -1,5 +1,9 @@
-package load_shedding_sim;
+package strategy;
 import java.util.*;
+
+import data_entry.DataEntry;
+import data_entry.DataEntrySRBench;
+import data_entry.DataEntryVistaTV;
 
 public class DataCacheKhoa extends DataCache {
 	PriorityQueue <DataEntry> index;

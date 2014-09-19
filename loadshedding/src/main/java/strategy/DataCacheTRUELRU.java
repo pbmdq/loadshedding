@@ -1,6 +1,7 @@
-package load_shedding_sim;
+package strategy;
 import java.util.*;
-//import org.apache.commons.collections.*;
+
+import data_entry.DataEntry;
 
 public class DataCacheTRUELRU extends DataCache{
 	

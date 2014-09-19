@@ -1,5 +1,8 @@
-package load_shedding_sim;
+package strategy;
 import java.util.*;
+
+import load_shedding_sim.Debug;
+import data_entry.DataEntry;
 
 public class DataCacheFIFOFIFO extends DataCache{
 	int []sizeFF;

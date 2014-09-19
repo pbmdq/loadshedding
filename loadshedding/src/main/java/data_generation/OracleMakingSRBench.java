@@ -1,7 +1,11 @@
-package load_shedding_sim;
+package data_generation;
 
 import java.io.File;
 import java.sql.*;
+
+import load_shedding_sim.Debug;
+import data_entry.DataEntry;
+import data_entry.DataEntrySRBench;
 
 public class OracleMakingSRBench extends OracleMaking{
 	public OracleMakingSRBench () {

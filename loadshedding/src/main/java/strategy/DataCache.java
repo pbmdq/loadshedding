@@ -1,11 +1,18 @@
-package load_shedding_sim;
+package strategy;
 import java.util.*;
 import java.io.*;
 import java.text.*;
 
+import load_shedding_sim.Debug;
+import load_shedding_sim.Deprecation;
+
 import com.google.common.base.Charsets;
 import com.google.common.collect.*;
 import com.google.common.io.*;
+
+import data_entry.DataEntry;
+import data_entry.DataEntrySRBench;
+import data_entry.DataEntryVistaTV;
 
 public class DataCache {
 	BufferedReader fileBufferReader; // for input file
@@ -18,7 +25,7 @@ public class DataCache {
 	String outputFileNameBase;
 	String outputDir;
 	
-	HashMultimap <String,DataEntry> store;
+	public HashMultimap <String,DataEntry> store;
 	boolean enableReasoning;
 	PriorityQueue<DataEntry> endingTimeQ;
 	
@@ -32,7 +39,7 @@ public class DataCache {
 	
 	//int statOfStressedInput;
 	
-	Deprecation myDeprecation;
+	public Deprecation myDeprecation;
 	
 	public void warmupReset () {
 		statOfTotalEvication 	= 0;
@@ -144,14 +151,16 @@ public class DataCache {
 			case Debug.JOIN_TYPE_TWO_WAY:
 			case 22:
 				Set<DataEntry> entries = store.get(inputEntry.key);
-				if(!this.getClass().equals(DataCacheClock.class) && !this.getClass().equals(DataCacheCLOCKONE.class) && !this.getClass().equals(DataCacheCLOCKM.class))
+ 				if(!this.getClass().equals(DataCacheClock.class) && !this.getClass().equals(DataCacheCLOCKONE.class) && !this.getClass().equals(DataCacheCLOCKM.class))
 					inputEntry.afterJoin(entries.size());
 				for(DataEntry entry:entries) {
 					if(!(entry.timeStampEnd.before(inputEntry.timeStamp)) && !(entry.timeStamp.after(inputEntry.timeStampEnd))) {
 						//printJoinResutls(entry, inputEntry, inputCache);
 						entry.afterJoin(1);
 						// two part stuff
-						if(this.getClass().equals(DataCacheFIFOClock.class) || this.getClass().equals(DataCacheFIFOLRU.class) ) {
+						if (this.getClass().equals(DataCacheARC.class)) {
+							((DataCacheARC) this).hitInCache(entry);
+						} else if(this.getClass().equals(DataCacheFIFOClock.class) || this.getClass().equals(DataCacheFIFOLRU.class) ) {
 							((DataCacheFIFOClock) this).hitInCache(entry);
 							((DataCacheFIFOClock) inputCache).numOfTotalFIFOResults++;
 						}else if(this.getClass().equals(DataCacheTRUELRU.class)){
@@ -161,8 +170,8 @@ public class DataCache {
 							this.myDeprecation.addOneStat(currentLocalSimTime - entry.localSimTimeStamp);
 						numResults++;
 					}
-					
 				}
+				shadowJoin(inputEntry);
 				break;
 		}
 		inputCache.garbageCollection(currentSystemReadTimeStamp);
@@ -172,6 +181,8 @@ public class DataCache {
 	}
 	
 	public void endOfCache() throws Exception {
+	}
+	public void shadowJoin(DataEntry inputEntry) throws Exception {
 	}
 	public void garbageCollection ( Date currentSystemReadTimeStamp) {
 	}

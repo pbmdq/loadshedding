@@ -1,4 +1,4 @@
-package load_shedding_sim;
+package data_entry;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -9,6 +9,7 @@ public class DataEntrySRBench extends DataEntry{
 		this ( inputString, simTimeStamp);
 		String[]  afterSplit = inputString.split("\t");
 		this.numberOfTotalResults= Integer.parseInt(afterSplit[4+depth]);
+		this.uniqueID			= this.hashCode();
 	}
 	public DataEntrySRBench ( String inputString, int simTimeStamp) throws Exception {
 		String[]  afterSplit = inputString.split(",");
@@ -20,6 +21,7 @@ public class DataEntrySRBench extends DataEntry{
 		this.timeStampEnd 		= DateUtils.addMilliseconds(this.timeStamp, 300);
 		this.key 				= afterSplit[3];
 		this.otherDataFields	= afterSplit[2];
+		this.uniqueID			= this.hashCode();
 	}
 	
 }

@@ -1,5 +1,7 @@
-package load_shedding_sim;
+package strategy;
 import java.util.*;
+
+import data_entry.DataEntry;
 
 public class DataCacheFIFOClock extends DataCache{
 	LinkedList <DataEntry> indexCLOCK;
@@ -51,6 +53,7 @@ public class DataCacheFIFOClock extends DataCache{
 			numOfThrowingAway++;
 			return true;
 		}
+		
 		//return false;
 		/*
 		if(this.numOfTotalCLOCKResults== 0 || (double)temEntry.numberOfPastResults/(double)this.sizeFIFO > this.numOfTotalCLOCKResults/this.numOfTotalCLOCKInput) {

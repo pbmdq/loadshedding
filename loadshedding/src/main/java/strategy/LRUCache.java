@@ -1,4 +1,4 @@
-package load_shedding_sim;
+package strategy;
 
 /*
  * XAPool: Open Source XA JDBC Pool
@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Enumeration;
 
+import data_entry.DataEntry;
+
 /**
  * Simple implementation of a cache, using Least Recently Used algorithm
  * for discarding members when the cache fills up
@@ -46,29 +48,24 @@ public class LRUCache
     }
 
 
-    public LRUCache(int i)
-    {
+    public LRUCache(int i) {
         currentSize = 0;
         cacheSize = i;
         nodes = new Hashtable(i);
     }
 
-    public DataEntry get(Object key)
-    {
+    public DataEntry get(Object key) {
         CacheNode node = (CacheNode)nodes.get(key);
-        if(node != null)
-        {
+        if(node != null) {
             moveToHead(node);
             return node.value;
         }
-        else
-        {
+        else{
             return null;
         }
     }
 
-    public Object put(Object key, DataEntry value)
-    {
+    public Object put(Object key, DataEntry value) {
         CacheNode node = (CacheNode)nodes.get(key);
         DataEntry remove = null;
         if(node == null)
@@ -108,6 +105,8 @@ public class LRUCache
                 last = node.prev;
             if (first == node)
                 first = node.next;
+            
+            currentSize--;
         }
         
         return node.value;
@@ -130,6 +129,21 @@ public class LRUCache
             last = last.prev;
         }
     }
+    public DataEntry removeLastEntry() {
+        if(last != null)
+        {
+        	CacheNode temp = last;
+            if(last.prev != null)
+                last.prev.next = null;
+            else
+                first = null;
+            last = last.prev;
+            currentSize--;
+            return temp.value;
+        }
+        return null;
+        
+    }
 
     private void moveToHead(CacheNode node)
     {
@@ -151,7 +165,9 @@ public class LRUCache
         if(last == null)
             last = first;
     }
-
+    public int getSize() {
+    	return currentSize;
+    }
     private int cacheSize;
     private Hashtable nodes;
     private int currentSize;

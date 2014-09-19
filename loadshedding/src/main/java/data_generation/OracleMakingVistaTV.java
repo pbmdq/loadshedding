@@ -1,12 +1,16 @@
-package load_shedding_sim;
+package data_generation;
 
 import java.io.File;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
+import load_shedding_sim.Debug;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+
+import data_entry.DataEntryVistaTV;
 
 public class OracleMakingVistaTV extends OracleMaking{
 	public OracleMakingVistaTV ( int inputType) {

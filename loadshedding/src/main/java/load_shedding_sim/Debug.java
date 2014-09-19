@@ -26,5 +26,10 @@ public interface Debug {
 	// for join results
 	
 	public final int FF_NUM_SEG = 3;
+	public final int ARCQONE 			= 1;
+	public final int ARCQTWO 			= 2;
+	public final int ARCQSHADOWONE 		= -1;
+	public final int ARCQSHADOWTWO 		= -2;
+	
 }
 //select A.time, B.time, A.sensorid , B.sensorid  from windspeed A, windspeed B where (B.time-A.time)<=200 and A.measurment = b.measurment and A.measurment > 10

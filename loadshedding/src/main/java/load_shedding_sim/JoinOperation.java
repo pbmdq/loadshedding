@@ -8,8 +8,23 @@ import org.apache.commons.cli.*;
 //import org.apache.commons.cli.Parser;
 import org.apache.commons.lang3.time.DateUtils;
 
+import strategy.DataCache;
+import strategy.DataCacheARC;
+import strategy.DataCacheCLOCKM;
+import strategy.DataCacheCLOCKONE;
+import strategy.DataCacheClock;
+import strategy.DataCacheFIFO;
+import strategy.DataCacheFIFOClock;
+import strategy.DataCacheFIFOFIFO;
+import strategy.DataCacheFIFOLRU;
+import strategy.DataCacheKhoa;
+import strategy.DataCacheRandom;
+import strategy.DataCacheTRUELRU;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+
+import data_entry.DataEntry;
 
 public class JoinOperation {
 
@@ -85,6 +100,8 @@ public class JoinOperation {
 		}
 	}
 	
+	-T 21 -I //Users//shengao//git//loadshedding//loadshedding//input//epg_sim_time_local.csv -O //Users//shengao//git//loadshedding//loadshedding//input//log_with_oracle_3days.csv -OUT //Users//shengao//git//loadshedding//loadshedding//output// -Si 0.01 -So 0.5 -L 3 -CLOCK -SF 0.9 -W 600000 -TH 0
+	
 	*/
 	private static CommandLine parserArguments (String[] args) throws Exception{
 		options.addOption( "T", "joinType",  true, "specify the join type (one-way,twp-way and Query)");
@@ -109,8 +126,10 @@ public class JoinOperation {
 		options.addOption( "FIFOCLOCK", "fifoclock", false, "fifo+clock experiments");
 		options.addOption( "FIFOLRU", "fifolru", false, "fifo+lru experiments");
 		options.addOption( "FIFOFIFO", "fifofifo", false, "fifo+fifos experiments");
+		options.addOption( "ARC", "arc", false, "IBM ARC experiment");
 		options.addOption( "SF", "sizeOfFIFO", true, "fifo area size");
-		options.addOption( "TH", "threshold", true, "fifo to other threshold");
+		options.addOption( "TH", "threshold", true, "fifo to other threshold, number of past results");
+		
 		options.addOption( "R", "enable reasoning", false, "enable reason or not");
 		options.addOption( "W", "warmup", true, "warm up duration in terms of simtime");
 		options.addOption( "OUT", "outputDir", true, "output Dir");
@@ -181,6 +200,8 @@ public class JoinOperation {
 			type = "FIFOLRU";
 		} else if (inputArguments.hasOption( "FIFOFIFO" ) ) {
 			type = "FIFOFIFO";
+		} else if (inputArguments.hasOption( "ARC" ) ) {
+			type = "ARC";
 		} 
 		else {
 			throw new Exception();
@@ -223,6 +244,11 @@ public class JoinOperation {
 			int thresHold= Integer.parseInt(inputArguments.getOptionValue("TH"));
 			innerCache = new DataCacheFIFOFIFO (innerDir, innerSize, true, enableReasoning, outputDir, sizeFIFO, thresHold);
 			outerCache = outterDir==null?null:new DataCacheFIFOFIFO (outterDir, outterSize, false, enableReasoning, outputDir, sizeFIFO, thresHold);
+		}else if (type.equals( "ARC" ) ) {
+			// IBM adaptive replacement cache
+			double sizeFIFO = Double.parseDouble(inputArguments.getOptionValue("sizeOfFIFO"));
+			innerCache = new DataCacheARC (innerDir, innerSize, true, enableReasoning, outputDir, innerSize+outterSize);
+			outerCache = outterDir==null?null:new DataCacheARC(outterDir, outterSize, false, enableReasoning, outputDir, innerSize+outterSize);
 		}
 		
 		isWarmingUp = true;
@@ -399,8 +425,6 @@ public class JoinOperation {
 				
 			}*/
 			startNano = System.nanoTime() - startNano;
-			System.out.println(startNano);
-			// 12.643 microsecond
 		}
 		//System.out.println(innerCache.currentLocalSimTime);
 		//System.out.println(outerCache.currentLocalSimTime);

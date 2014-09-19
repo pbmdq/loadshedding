@@ -1,4 +1,4 @@
-package load_shedding_sim;
+package data_generation;
 
 import java.sql.ResultSet;
 import java.sql.Statement;

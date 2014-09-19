@@ -1,9 +1,11 @@
-package load_shedding_sim;
+package strategy;
 import java.util.*;
 
-public class DataCacheCLOCKONE extends DataCacheClock{
-	
-	public DataCacheCLOCKONE ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
+import data_entry.DataEntry;
+
+public class DataCacheCLOCKM extends DataCacheClock{
+	// different ways of depreciation
+	public DataCacheCLOCKM ( String inputFileDir, int allowedSize , boolean isInner, boolean enableReasoning, String outputDir) throws Exception {
 		super( inputFileDir, allowedSize, isInner, enableReasoning, outputDir);
 	}
 	public DataEntry replaceVictimEntry ( DataEntry input) {
@@ -14,10 +16,9 @@ public class DataCacheCLOCKONE extends DataCacheClock{
 			if(!tempItr.hasNext()) 
 				tempItr = index.listIterator(0);
 			tempData = tempItr.next();
-			if(tempData.numberOfPastResults>0) {
-				tempData.numberOfPastResults--;
-				if(tempData.numberOfPastResults>0)
-					tempData.numberOfPastResults = 1;
+			// TODO need dto taken care
+			if(tempData.numberOfPastResults>= 1) {
+				tempData.numberOfPastResults -=1;
 			} else
 				break;
 		}
