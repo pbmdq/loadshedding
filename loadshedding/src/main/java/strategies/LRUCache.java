@@ -1,4 +1,4 @@
-package strategy;
+package strategies;
 
 /*
  * XAPool: Open Source XA JDBC Pool
@@ -105,10 +105,8 @@ public class LRUCache
                 last = node.prev;
             if (first == node)
                 first = node.next;
-            
             currentSize--;
         }
-        
         return node.value;
     }
 
@@ -122,11 +120,13 @@ public class LRUCache
     {
         if(last != null)
         {
+        	CacheNode tempNode = last;
             if(last.prev != null)
                 last.prev.next = null;
             else
                 first = null;
             last = last.prev;
+            tempNode = null;
         }
     }
     public DataEntry removeLastEntry() {

@@ -19,8 +19,8 @@ public class DataEntrySRBench extends DataEntry{
 		this.timeStamp 			= new Date(Long.parseLong(afterSplit[1]));
 		//System.out.println(this.timeStamp.getTime());
 		this.timeStampEnd 		= DateUtils.addMilliseconds(this.timeStamp, 300);
-		this.key 				= afterSplit[3];
-		this.otherDataFields	= afterSplit[2];
+		this.key 				= new String(afterSplit[3]);
+		this.otherDataFields	= new String(afterSplit[2]);
 		this.uniqueID			= this.hashCode();
 	}
 	

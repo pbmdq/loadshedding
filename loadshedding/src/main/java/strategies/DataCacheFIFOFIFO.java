@@ -1,4 +1,4 @@
-package strategy;
+package strategies;
 import java.util.*;
 
 import load_shedding_sim.Debug;
