@@ -1,4 +1,4 @@
-package strategies;
+package strategy;
 import java.util.*;
 import java.io.*;
 import java.text.*;
@@ -142,7 +142,7 @@ public class DataCache {
 							//printJoinResutls(entry, inputEntry);
 							entry.afterJoin(1);
 							numResults++;
-							//this.myDeprecation.addOneStat(currentLocalSimTime - entry.localSimTimeStamp);
+							this.myDeprecation.addOneStat(currentLocalSimTime - entry.localSimTimeStamp);
 						}
 					}
 					inputEntry.afterJoin(numResults);
@@ -166,18 +166,15 @@ public class DataCache {
 						}else if(this.getClass().equals(DataCacheTRUELRU.class)){
 							((DataCacheTRUELRU) this).index.get(entry.hashCode());
 						}
-						//if(this.isInner)
-						//	this.myDeprecation.addOneStat(currentLocalSimTime - entry.localSimTimeStamp);
-						entry.numberOfFutureResults--;
+						if(this.isInner)
+							this.myDeprecation.addOneStat(currentLocalSimTime - entry.localSimTimeStamp);
 						numResults++;
 					}
 				}
 				shadowJoin(inputEntry);
 				break;
 		}
-		if(numResults>0 )
-			inputCache.garbageCollection(currentSystemReadTimeStamp);
-		inputEntry.numberOfFutureResults -= numResults;
+		inputCache.garbageCollection(currentSystemReadTimeStamp);
 		inputCache.insertOneEntry(inputEntry);
 		inputCache.evicatOneEntry();
 		return numResults;

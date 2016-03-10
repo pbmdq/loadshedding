@@ -13,7 +13,7 @@ public class DataEntryVistaTV extends DataEntry{
 		this.timeStampEnd 		= Debug.sdf.parse(afterSplit[2]);
 		this.key 				= afterSplit[3];
 		this.otherDataFields	= afterSplit[4];
-		this.numberOfFutureResults	= Integer.parseInt(afterSplit[5]);
+		//this.localSimTimeStamp	= Integer.parseInt(afterSplit[5]);
 		this.numberOfTotalResults = 0;
 		numberOfPastResults 	= 1;
 		numberOfLargestPastResults= 1;

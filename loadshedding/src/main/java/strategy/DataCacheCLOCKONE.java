@@ -1,4 +1,4 @@
-package strategies;
+package strategy;
 import java.util.*;
 
 import data_entry.DataEntry;
@@ -23,12 +23,10 @@ public class DataCacheCLOCKONE extends DataCacheClock{
 			} else
 				break;
 		}
-		
 		this.statOfTotalEvication++;
 		tempItr.set(input);
 		this.deleteFromStore(tempData);
 		pointer = tempItr.nextIndex();
-		index.remove(tempData);
 		return tempData;
 	}
 }
