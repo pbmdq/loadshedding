@@ -2,7 +2,6 @@ package load_shedding_sim;
 
 import org.apache.logging.log4j.*;
 
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
@@ -14,6 +13,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
+import data_generation.AnalysisInput;
+
 
 public class LoadSheddingSimMain {
 	public static void main (String[] args) throws Exception{
@@ -24,7 +25,9 @@ public class LoadSheddingSimMain {
 		//OracleMakingVistaTV myOracle = new OracleMakingVistaTV(Debug.ORACLE_LOG);
 		//myOracle.making();
 		
-		//AnalysisInput myAnalysis = new AnalysisInput();
+//		AnalysisInput myAnalysis = new AnalysisInput();
+//		myAnalysis.singleOracle();
+//		
 		//myAnalysis.getHistogram();
 		//myAnalysis.getHistogramWithLocalSimTime();
 		
