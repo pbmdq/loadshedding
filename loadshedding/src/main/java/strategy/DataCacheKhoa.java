@@ -1,4 +1,4 @@
-package strategies;
+package strategy;
 import java.util.*;
 
 import data_entry.DataEntry;

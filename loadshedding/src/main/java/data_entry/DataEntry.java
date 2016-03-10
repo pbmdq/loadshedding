@@ -9,7 +9,6 @@ public class DataEntry {
 	public int numberOfTotalResults;
 	public double numberOfPastResults;
 	public int numberOfLargestPastResults;
-	public int numberOfFutureResults;
 	public int globalSimTimeStamp;
 	public int localSimTimeStamp;
 	public int [][]oracle;

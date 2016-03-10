@@ -1,4 +1,4 @@
-package strategies;
+package strategy;
 import java.util.*;
 
 import data_entry.DataEntry;
@@ -26,8 +26,6 @@ public class DataCacheCLOCKM extends DataCacheClock{
 		tempItr.set(input);
 		this.deleteFromStore(tempData);
 		pointer = tempItr.nextIndex();
-		index.remove(tempData);
-		//System.out.println(this.store.size());
 		return tempData;
 	}
 }
